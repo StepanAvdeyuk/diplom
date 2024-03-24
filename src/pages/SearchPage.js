@@ -17,8 +17,10 @@ const SearchPage = () => {
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
 
+  console.log('kek');
+
   const getData = () => {
-    axios.get(`http://172.17.208.1:8000/vacancies`)
+    axios.get(`http://10.193.61.85:8000/vacancies`)
     .then((data) => {   
         console.log(data)
         alert('then')
