@@ -1,0 +1,28 @@
+@import './normalize';
+@import './variables';
+@import './lib.scss';
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap');
+
+@import './slick.scss';
+@import './slick-theme.scss';
+
+body {
+    background-color: $main-bg;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 1160px;
+    margin: 0 auto;
+}
+
+
+* {
+    font-family: 'Rubik', sans-serif;
+}
+
+@import './MainPage.scss';
+@import './SearchPage.scss';
+@import './VacancyCard.scss';
+@import './CatalogPage.scss';

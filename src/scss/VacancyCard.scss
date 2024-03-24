@@ -1,0 +1,157 @@
+.vc {
+    &__wrapper {
+        padding: 16px 0;
+        border-radius: 15px;
+        background: #fff;
+        filter: drop-shadow(0px 0px 5px hsla(0, 0%, 0%, 0.05));
+        display: grid;
+        grid-template-columns: 188px 280px 173px auto;
+        align-items: center;
+        font-size: 14px;
+        color: hsla(216, 84%, 17%, 0.808);
+        text-align: center;
+        position: relative;
+        transition: all .2s ease;
+        &.active {
+            border-radius: 15px 15px 0 0;
+        }
+        margin-bottom: 20px;
+        &.active {
+            margin-bottom: 160px;
+        }
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    &__modal {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        padding: 16px;
+        border-radius: 0 0 15px 15px;
+        border-top: 1px solid rgba(10, 108, 255, 0.15);
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+        background: #fff;
+        filter: drop-shadow(0px 0px 5px hsla(0, 0%, 0%, 0.05));
+        div {
+            margin-bottom: 10px;
+            color: hsla(216, 84%, 17%, 0.65);
+        }
+        span {
+            font-size: 14px;
+            color: hsla(216, 84%, 17%, 0.808);
+            margin-right: 10px;
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+    &__vacancy {
+        border-right: 1px solid rgba(10, 108, 255, 0.299);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+    }
+    &__project {
+        border-right: 1px solid rgba(10, 108, 255, 0.299);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+    }
+    &__stage {
+        border-right: 1px solid rgba(10, 108, 255, 0.299);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+    }
+    &__links {
+        display: flex;
+        height: 100%;   
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0 16px;
+    }
+    &__more {
+        img {
+            margin-left: 18px;
+            transition: all .3s ease;
+            user-select: none;
+            &.active {
+                transform: rotate(180deg);
+            }
+        }
+        padding: 8px 10px;
+        user-select: none;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+    &__cab {
+        display: flex;
+        img {
+            width: 20px;
+        }
+        p {
+            text-align: right;
+            font-size: 14px;
+            color: hsla(216, 84%, 17%, 0.808);
+            margin-right: 8px;
+            width: 130px;
+        }
+        .link {
+            display: block;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            border: 2px solid hsla(216, 100%, 52%, 0.3);
+            &:hover {
+                cursor: pointer;
+            }
+            margin-right: 8px;
+        }
+        .heart {
+            display: block;
+            height: 30px;
+            width: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            border: 2px solid hsla(216, 100%, 52%, 0.3);
+            transition: all 0.4s ease;
+            &.active {
+                svg {
+                    stroke: none;
+                    fill: $main-color;
+                }
+            }
+            svg {
+                fill: transparent;
+                transition: all 0.4s ease;
+                stroke: $main-color;
+                stroke-width: 1.5;
+            }
+            &:hover {
+                cursor: pointer;
+                background: $main-color;
+                svg {
+                    // stroke: #fff;
+                    fill: #fff;
+                }
+            }
+        
+        }
+    }
+}

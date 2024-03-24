@@ -1,0 +1,94 @@
+.search {
+    &__content {
+        display: grid;
+        margin-top: 36px;
+        grid-template-columns: 250px auto;
+        gap: 25px;
+        padding-bottom: 50px;
+    }
+    &__params {
+        width: 250px;
+        height: 300px;
+        position: sticky;
+        top: 30px;
+    }
+    &__result {
+        width: 100%;
+        &-header {
+            display: grid;
+            grid-template-columns: 188px 280px 173px auto;
+            margin-bottom: 10px;
+            .title {
+                font-size: 14px;
+                color: $main-color;
+                font-weight: 500;
+                display: block;
+                padding: 0 auto;
+                height: 100%;
+                text-align: center;
+                border-right: 1px solid #0a6cff42;
+            }
+        }
+    }
+    &__param {
+        &-wrapper {
+            margin-bottom: 25px;
+        }
+        &-select {
+            margin-top: 20px;
+            height: 170px;
+            overflow-y: auto;
+            padding-left: 10px;
+        }
+        &-name {
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 400;
+            color: $main-color;
+            position: relative;
+            width: min-content;
+            span {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                left: calc(100% + 10px);
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                border-radius: 30px;
+                background-color: $main-color;
+                padding: 6px 8px;
+                color: #fff;
+            }
+        }
+        &-line {
+            margin-top: 10px;
+            width: 100%;
+            height: 1px;
+            opacity: .5;
+            background-color: $main-color;
+        }
+        &-search {
+            margin-top: 10px;
+            position: relative;
+            img {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                right: 8px;
+            }
+            input {
+                width: 100%;
+                border: none;
+                border-radius: 4px;
+                background: rgba(10, 108, 255, 0.10);
+                padding: 8px;
+                padding-right: 28px;
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 400;
+                color: rgba(7, 37, 81, 0.80);
+            }
+        }
+    }
+}
