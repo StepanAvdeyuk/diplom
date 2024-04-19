@@ -1,12 +1,12 @@
 from django.db import models
-from ontology.models import OntologySkills, OntologyRoles
+from ontology.models import VacancyTag, VacancyTagVariation
 
 
 class Heads(models.Model):
     head_email = models.CharField(max_length=256, primary_key=True)
     head_surname = models.CharField(max_length=256)
     head_name = models.CharField(max_length=256)
-    head_fathername = models.CharField(max_length=256)
+    head_fathername = models.CharField(max_length=256, null=True)
 
     def __str__(self):
         return f"{self.head_surname} {self.head_name} {self.head_fathername} ({self.head_email})"
@@ -58,11 +58,6 @@ class Stage(models.Model):
         verbose_name_plural = 'Stages'
 
 
-class Roles(models.Model):
-    role_id = models.IntegerField(unique=True, primary_key=True)
-    role_name = models.ForeignKey(to=OntologyRoles, on_delete=models.CASCADE)
-
-
 class Vacancies(models.Model):
     vacancy_id = models.IntegerField(primary_key=True, unique=True)
     vacancy_name = models.TextField()
@@ -80,14 +75,12 @@ class Vacancies(models.Model):
         verbose_name = 'Vacancy'
         verbose_name_plural = 'Vacancies'
 
-
-class Skills(models.Model):
-    skill_id = models.IntegerField(unique=True, primary_key=True)
-    skill_name = models.ForeignKey(to=OntologySkills, on_delete=models.CASCADE)
-
-
 class Skills_in_vacancies(models.Model):
-    vacancy_name = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE)
-    skill_name = models.ForeignKey(to=Skills, on_delete=models.CASCADE)
+    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE)
+    # skill_name = models.ForeignKey(to=Skills, on_delete=models.CASCADE)
     obligation = models.CharField(max_length=256,
                                   choices=[('disciplines', 'disciplines'), ('additionally', 'additionally')])
+
+class Roles_in_vacancies(models.Model):
+    role_name = models.ForeignKey(to=VacancyTag, on_delete=models.CASCADE)
+    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE)

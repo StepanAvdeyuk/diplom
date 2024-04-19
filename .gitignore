@@ -16,6 +16,10 @@ build/
 venv/
 env/
 ENV/
+Lib/
+Scripts/
+Include/
+
 
 # IDE/Text editor specific files
 .idea/
