@@ -33,7 +33,7 @@ class VacanciesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vacancies
-        fields = ['vacancy_name', 'project_id', 'project_name', 'project_type', 'project_head', 'project_stage',
+        fields = ['vacancy_id', 'vacancy_name', 'project_id', 'project_name', 'project_type', 'project_head', 'project_stage',
                   'project_url', 'vacancy_disciplines', 'vacancy_additionally']
 
 ProjectsSerializer = create_model_serializer(Projects)
