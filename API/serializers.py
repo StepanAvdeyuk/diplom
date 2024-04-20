@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from parsing.models import Stage, Projects, Vacancies
+from parsing.models import Stage, Projects, Vacancies, Roles_in_vacancies
+from ontology.models import VacancyTag
 
 
 def create_model_serializer(Model):
@@ -37,3 +38,8 @@ class VacanciesSerializer(serializers.ModelSerializer):
                   'project_url', 'vacancy_disciplines', 'vacancy_additionally']
 
 ProjectsSerializer = create_model_serializer(Projects)
+
+class VacancyTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VacancyTag
+        fields = ['id', 'name']

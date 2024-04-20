@@ -1,6 +1,6 @@
 import requests
 import json
-from parsing.models import Heads, Types, Stage, Projects, Vacancies
+from parsing.models import Heads, Types, Stage, Projects, Vacancies, Roles_in_vacancies
 
 headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0',
@@ -73,6 +73,7 @@ def get_data():
 
 
 def clear_data():
+    Roles_in_vacancies.objects.all().delete()
     Heads.objects.all().delete()
     Types.objects.all().delete()
     Projects.objects.all().delete()

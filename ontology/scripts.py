@@ -5,6 +5,9 @@ from .models import ComplexTag, VacancyTag, VacancyTagVariation
 from parsing.models import Vacancies, Roles_in_vacancies
 
 def read_vacancies_variations(filepath):
+    ComplexTag.objects.all().delete()
+    VacancyTag.objects.all().delete()
+    VacancyTagVariation.objects.all().delete()
     df = pd.read_excel(filepath, header=None)
 
     complex_tags = [tag.strip() for tag in df.iloc[:, 0].dropna()]
@@ -55,6 +58,7 @@ def match_tags(vacancy_text, tags_dict):
 
 
 def tag_vacancies():
+    Roles_in_vacancies.objects.all().delete()
     complex_tags = get_complex_tags()
     tags_dict = get_vacancies_tags_dict()
     all_vacancies = Vacancies.objects.all()
