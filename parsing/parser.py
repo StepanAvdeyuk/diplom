@@ -29,7 +29,6 @@ def get_data():
 
     # Цикл по всем проектам в selected_items
     for project in selected_projects:
-        project_id = project['id']  # Получаем id проекта
         project_url = f"https://cabinet.miem.hse.ru/api/project/vacancies/{project['id']}"
         project_header_url = f"https://cabinet.miem.hse.ru/api/project/header/{project['id']}"
 
@@ -43,7 +42,7 @@ def get_data():
         for vacancy in vacancies_data['data']:
             if vacancy['booked'] == False:
                 vacancy_info = {
-                    'vacancy_id': vacancy['vacancy_id'],
+                    'vacancy_id': vacancy['vacancyId'],
                     'role': vacancy['role'],
                     'count': vacancy['count'],
                     'disciplines': vacancy['disciplines'],
@@ -83,7 +82,12 @@ def clear_data():
 
 def upload_data():
     for project in selected_projects:
-        head_surname, head_name, head_fathername = project['head'].split()
+        name_parts = project['head'].split()
+
+        head_surname = name_parts[0] if len(name_parts) > 0 else None
+        head_name = name_parts[1] if len(name_parts) > 1 else None
+        head_fathername = name_parts[2] if len(name_parts) > 2 else None
+
         heads_info = Heads(head_email=project['head_email'], head_name=head_name,
                            head_surname=head_surname, head_fathername=head_fathername)
         heads_info.save()

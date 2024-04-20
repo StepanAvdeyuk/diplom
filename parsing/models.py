@@ -43,7 +43,7 @@ class Projects(models.Model):
 
 class Stage(models.Model):
     stage_id = models.IntegerField(primary_key=True)
-    stage_project = models.ForeignKey(to=Projects, on_delete=models.DO_NOTHING)
+    stage_project = models.ForeignKey(to=Projects, on_delete=models.CASCADE)
     stage_name = models.CharField(max_length=256)
     stage_status = models.IntegerField(null=False)
     date = models.CharField(max_length=256, null=True)
