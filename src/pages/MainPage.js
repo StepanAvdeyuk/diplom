@@ -15,8 +15,19 @@ const MainPage = () => {
   const [professionModal, setProffesionModal] = React.useState(false);
   const [skillsModal, setSkillsModal] = React.useState(false);
 
+  const [searchP, setSearchP] = React.useState(''); 
+  const [searchS, setSearchS] = React.useState('');
+
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
+
+  const filteredProfessions = professions.filter(item =>
+    item.name.toLowerCase().includes(searchP.toLowerCase())
+  );
+
+  const filteredSkills = skills.filter(item =>
+    item.name.toLowerCase().includes(searchS.toLowerCase())
+  );
 
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
@@ -26,17 +37,17 @@ const MainPage = () => {
     <h1 className='main__title'>Найти вакансии в проектах МИЭМ</h1>
     <div className="main__params">
         <div className={professionModal ? 'main__professions active' : 'main__professions'} onClick={() => {setProffesionModal(!professionModal); setSkillsModal(false);}}>
-            <span>Направление
+            <span>Направления
               <div className="main__count">+{selectedProfessionsCount}</div>
             </span>
             <img className={professionModal ? 'active' : ''} src={arrow} alt="arrow"/>
             {professionModal && <div className="main__professions-modal" onClick={(e) => e.stopPropagation()}>
               <div className="main__search-input">
-                <input type="text" placeholder='Поиск направления'/>
+                <input type="text" placeholder='Поиск направления' value={searchP} onChange={(e) => setSearchP(e.target.value)}/>
                 <img src={search} alt="search"/>                
               </div>
               <div className="main__search-list scrollBar">
-                    {professions && professions.map((item) => {
+                    {filteredProfessions && filteredProfessions.map((item) => {
                       return <ProfessionItem name={item.name}/>
                     })}
               </div>
@@ -49,11 +60,11 @@ const MainPage = () => {
             <img src={arrow} className={skillsModal ? 'active' : ''} alt="arrow"/>
             {skillsModal && <div className="main__skills-modal" onClick={(e) => e.stopPropagation()} >
               <div className="main__search-input">
-                <input type="text" placeholder='Поиск направления'/>
+                <input type="text" placeholder='Поиск навыка' value={searchS} onChange={(e) => setSearchS(e.target.value)}/>
                 <img src={search} alt="arrow"/>                
               </div>
               <div className="main__search-list scrollBar">
-                    {skills && skills.map((item) => {
+                    {filteredSkills && filteredSkills.map((item) => {
                       return <SkillItem name={item.name}/>
                     })}
               </div>

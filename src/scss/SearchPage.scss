@@ -5,6 +5,33 @@
         grid-template-columns: 250px auto;
         gap: 25px;
         padding-bottom: 50px;
+        ::-webkit-scrollbar {
+            width: 8px; 
+          }
+        
+        ::-webkit-scrollbar-thumb {
+        background-color: #0a6cffd0; 
+        border-radius: 5px; 
+        }
+        
+        ::-webkit-scrollbar-track {
+        background-color: #c1daff; 
+        border-radius: 5px; 
+        }
+    }
+    &__more {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        button {
+            font-size: 14px;
+            padding: 2px 10px;
+            border-radius: 5px;
+            background: transparent;
+            border: 1px solid rgba(7, 37, 81, 0.5);
+            color:rgba(7, 37, 81, 0.7); 
+        }
     }
     &__params {
         width: 250px;

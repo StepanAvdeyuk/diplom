@@ -8,32 +8,59 @@ import search from '../assets/search.png';
 import VacancyCard from '../components/VacancyCard';
 import ProfessionItem from '../components/ProfessionItem';
 import SkillItem from '../components/SkillItem';
+import Loader from '../components/Loader';
+
+const loaderData = [0, 0, 0, 0, 0];
 
 const SearchPage = () => {
+
+  const [data, setData] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const [showFavorites, setShowFavorites] = React.useState(false);
+
+  const [offset, setOffset] = React.useState(10);
+
+  const [searchP, setSearchP] = React.useState(''); 
+  const [searchS, setSearchS] = React.useState('');
 
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
 
+  const filteredProfessions = professions.filter(item =>
+    item.name.toLowerCase().includes(searchP.toLowerCase())
+  );
+
+  const filteredSkills = skills.filter(item =>
+    item.name.toLowerCase().includes(searchS.toLowerCase())
+  );
+
+
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
 
-  console.log('kek');
-
   const getData = () => {
-    axios.get(`http://10.193.61.85:8000/vacancies`)
+    setIsLoading(true);
+    axios.get(`http://10.193.63.17:8000/vacancies`)
     .then((data) => {   
-        console.log(data)
-        alert('then')
+        setData(data.data);
+        setIsLoading(false);
     }).catch((e) => {
-        alert('catch')
+        alert('Ошибка получения вакансий')
         console.log(e);
+        setIsLoading(false);
     })
-}
-  
-  
+  }
+
   React.useEffect(() => {
     getData();
   }, [])
+
+  function getFavorites() {
+    return JSON.parse(localStorage.getItem('favorites')) || [];
+  }
+
+  let favorites = getFavorites();
 
   return (
     <>
@@ -46,16 +73,16 @@ const SearchPage = () => {
     <div className="search__content">
       <div className="search__params">
         <div className="search__param-wrapper">
-          <div className="search__param-name">Направление
+          <div className="search__param-name">Направления
             <span>+{selectedProfessionsCount}</span> 
           </div>  
           <div className="search__param-line"></div>
           <div className="search__param-search">
-            <input placeholder='Поиск направления'></input>  
+            <input placeholder='Поиск направления' value={searchP} onChange={(e) => setSearchP(e.target.value)}></input>  
             <img src={search} alt="search" />
           </div>    
           <div className="search__param-select">
-            {professions && professions.map((item) => {
+            {filteredProfessions && filteredProfessions.map((item) => {
                 return <ProfessionItem name={item.name}/>
             })}
           </div>
@@ -67,11 +94,11 @@ const SearchPage = () => {
           </div>  
           <div className="search__param-line"></div>
           <div className="search__param-search">
-            <input placeholder='Поиск навыков'></input>  
+            <input placeholder='Поиск навыков' value={searchS} onChange={(e) => setSearchS(e.target.value)}></input>  
             <img src={search} alt="search" />
           </div>    
           <div className="search__param-select">
-            {skills && skills.map((item) => {
+            {filteredSkills && filteredSkills.map((item) => {
                 return <SkillItem name={item.name}/>
             })}
           </div>
@@ -82,17 +109,45 @@ const SearchPage = () => {
               <div className="title">Вакансия</div>
               <div className="title">Проект</div>
               <div className="title">Стадия проекта</div>
+              <button onClick={() => setShowFavorites(!showFavorites)}>Кнопка</button>
             </div>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
-            <VacancyCard/>
+            {data && !isLoading && data.slice(0, offset).map((item) =>  {
+            if (!showFavorites) {
+              return <VacancyCard vacancyName={item.vacancy_name}
+                                  isFavorite={favorites.includes(item.vacancy_id) ? true : false}
+                                  vacancyId={item.vacancy_id}
+                                  projectId={item.project_id}
+                                  projectName={item.project_name}
+                                  projectType={item.project_type}
+                                  projectHead={item.project_head}
+                                  projectStage={item.project_stage}
+                                  projectUrl={item.project_url}
+                                  vacancyDisciplines={item.vacancy_disciplines}
+                                  vacancyAdditionally={item.vacancy_additionally}
+              />} else {
+                if (favorites.includes(item.vacancy_id)) {
+                  return <VacancyCard vacancyName={item.vacancy_name}
+                                  isFavorite={favorites.includes(item.vacancy_id) ? true : false}
+                                  vacancyId={item.vacancy_id}
+                                  projectId={item.project_id}
+                                  projectName={item.project_name}
+                                  projectType={item.project_type}
+                                  projectHead={item.project_head}
+                                  projectStage={item.project_stage}
+                                  projectUrl={item.project_url}
+                                  vacancyDisciplines={item.vacancy_disciplines}
+                                  vacancyAdditionally={item.vacancy_additionally}/>
+                }
+              }
+            }
+            
+            )}
+            {isLoading && loaderData.map(item => {
+              return <Loader/>
+            })}
+            {!isLoading && !showFavorites && offset < data.length && <div className="search__more">
+              <button onClick={() => {setOffset(offset + 10)}}>Показать еще</button>
+            </div>}
       </div>
     </div>
 
