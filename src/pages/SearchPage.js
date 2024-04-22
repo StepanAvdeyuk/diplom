@@ -2,8 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import debounce from 'lodash.debounce';
-
 import arrow from '../assets/nav-arrow.svg';
 import search from '../assets/search.png';
 import VacancyCard from '../components/VacancyCard';
@@ -11,9 +9,25 @@ import ProfessionItem from '../components/ProfessionItem';
 import SkillItem from '../components/SkillItem';
 import Loader from '../components/Loader';
 
+import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
+
 const loaderData = [0, 0, 0, 0, 0];
 
 const SearchPage = () => {
+
+  const {
+    input: searchP,
+    setInput: setSearchP,
+    data: filteredProfessions,
+    isLoading: isLoadingP
+  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
+
+  const {
+    input: searchS,
+    setInput: setSearchS,
+    data: filteredSkills,
+    isLoading: isLoadingS
+  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
 
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -21,61 +35,6 @@ const SearchPage = () => {
   const [showFavorites, setShowFavorites] = React.useState(false);
 
   const [offset, setOffset] = React.useState(10);
-
-  const [searchP, setSearchP] = React.useState(''); 
-  const [isLoadingP, setIsLoadingP] = React.useState(false);
-
-  const [searchS, setSearchS] = React.useState('');
-  const [isLoadingS, setIsLoadingS] = React.useState(false);
-
-  const [filteredProfessions, setFilteredProfessions] = React.useState([]);
-  const [filteredSkills, setFilteredSkills] = React.useState([]);
-
-  const loadProfessions = React.useCallback(async (searchTerm) => {
-    try {
-      const response = await axios.get(`http://10.193.60.137:8000/api/search/?q=${searchTerm}`);
-      const professions = response.data; 
-      setFilteredProfessions(professions);
-      setIsLoadingP(false);
-    } catch (error) {
-      console.error('Ошибка загрузки направлений:', error);
-      setIsLoadingP(false);
-    }
-  }, []);
-  const debouncedLoadProfessions = React.useCallback(debounce(loadProfessions, 300), [loadProfessions]);
-
-  const loadSkills = React.useCallback(async (searchTerm) => {
-    try {
-      const response = await axios.get(`http://10.193.60.137:8000/api/search/?q=${searchTerm}`);
-      const skills = response.data; 
-      setFilteredSkills(skills);
-      setIsLoadingS(false);
-    } catch (error) {
-      console.error('Ошибка загрузки направлений:', error);
-      setIsLoadingS(false);
-    }
-  }, []);
-  const debouncedLoadSkills = React.useCallback(debounce(loadSkills, 300), [loadSkills]);
-
-  React.useEffect(() => {
-    if (searchP) {
-      setIsLoadingP(true);
-      debouncedLoadProfessions(searchP);
-    } else {
-      setFilteredProfessions([]);
-    }
-    return () => debouncedLoadProfessions.cancel();
-  }, [searchP, debouncedLoadProfessions]);
-
-  React.useEffect(() => {
-    if (searchS) {
-      setIsLoadingS(true);
-      debouncedLoadSkills(searchS);
-    } else {
-      setFilteredSkills([]);
-    }
-    return () => debouncedLoadSkills.cancel();
-  }, [searchS, debouncedLoadSkills]);
 
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
