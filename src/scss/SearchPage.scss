@@ -67,6 +67,12 @@
             overflow-y: auto;
             padding-left: 10px;
         }
+        &-none {
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            color: rgba(7, 37, 81, 0.70);
+        }
         &-name {
             font-size: 20px;
             font-style: normal;

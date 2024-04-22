@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import debounce from 'lodash.debounce';
+import axios from 'axios';
 
 import SimpleSlider from '../components/SimpleSlider';
 
@@ -11,19 +13,40 @@ import SkillItem from '../components/SkillItem';
 
 
 const MainPage = () => {
-
   const [professionModal, setProffesionModal] = React.useState(false);
   const [skillsModal, setSkillsModal] = React.useState(false);
 
   const [searchP, setSearchP] = React.useState(''); 
   const [searchS, setSearchS] = React.useState('');
 
+  const [filteredProfessions, setFilteredProfessions] = React.useState([]);
+
+  const loadProfessions = React.useCallback(async (searchTerm) => {
+    try {
+      const response = await axios.get(`http://10.193.60.137:8000/api/search/?q=${searchTerm}`);
+      const professions = response.data; 
+      setFilteredProfessions(professions);
+    } catch (error) {
+      console.error('Ошибка загрузки направлений:', error);
+    }
+  }, []);
+  const debouncedLoadProfessions = React.useCallback(debounce(loadProfessions, 300), [loadProfessions]);
+
+  React.useEffect(() => {
+    if (searchP) {
+      debouncedLoadProfessions(searchP);
+    } else {
+      setFilteredProfessions([]);
+    }
+    return () => debouncedLoadProfessions.cancel();
+  }, [searchP, debouncedLoadProfessions]);
+
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
 
-  const filteredProfessions = professions.filter(item =>
-    item.name.toLowerCase().includes(searchP.toLowerCase())
-  );
+  // const filteredProfessions = professions.filter(item =>
+  //   item.name.toLowerCase().includes(searchP.toLowerCase())
+  // );
 
   const filteredSkills = skills.filter(item =>
     item.name.toLowerCase().includes(searchS.toLowerCase())
@@ -47,8 +70,10 @@ const MainPage = () => {
                 <img src={search} alt="search"/>                
               </div>
               <div className="main__search-list scrollBar">
-                    {filteredProfessions && filteredProfessions.map((item) => {
-                      return <ProfessionItem name={item.name}/>
+                    {(searchP == '') ? professions && professions.map((item) => {
+                          return <ProfessionItem id={item.id} name={item.name}/>
+                    }) : filteredProfessions.map((item) => {
+                        return <ProfessionItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
                     })}
               </div>
             </div>}

@@ -1,34 +1,52 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const initialState = {
-  skills: [{name: 'Frontend-разработка', isSelected: false}, {name: 'Backend-разработка', isSelected: false}, {name: 'Маркетинг', isSelected: false}, {name: 'Дизайн', isSelected: false}, {name: 'Тестировка', isSelected: false}, {name: '3д моделирование', isSelected: false}],
-  professions: [{name: 'Frontend-разработка', isSelected: false}, {name: 'Backend-разработка', isSelected: false}, {name: 'Маркетинг', isSelected: false}, {name: 'Дизайн', isSelected: false}, {name: 'Тестировка', isSelected: false}, {name: '3д моделирование', isSelected: false}],
+  skills: [],
+  professions: [],
 };
+
+export const fetchProfessions = createAsyncThunk(
+  'searchParams/fetchProfessions',
+  async () => {
+    const response = await fetch('http://10.193.60.137:8000/api/search/?q=');
+    const professions = await response.json();
+    return professions;
+  }
+);
+
+export const fetchSkills = createAsyncThunk(
+  'searchParams/fetchSkills',
+  async () => {
+    const response = await fetch('http://10.193.60.137:8000/api/search/?q=');
+    const skills = await response.json();
+    return skills;
+  }
+);
 
 const searchParamsSlice = createSlice({
   name: 'searchParams',
   initialState,
   reducers: {
     addSkill: (state, action) => {
-      state.skills.push({ name: action.payload, isSelected: false });
+      state.skills.push({ name: action.payload.name, isSelected: false, id: action.payload.id });
     },
     addProfession: (state, action) => {
-      state.professions.push({ name: action.payload, isSelected: false });
+      state.professions.push({ name: action.payload.name, isSelected: false, id: action.payload.id });
     },
     removeSkill: (state, action) => {
-      state.skills = state.skills.filter(skill => skill.name !== action.payload);
+      state.skills = state.skills.filter(skill => skill.id !== action.payload);
     },
     removeProfession: (state, action) => {
-      state.professions = state.professions.filter(profession => profession.name !== action.payload);
+      state.professions = state.professions.filter(profession => profession.id !== action.payload);
     },
     toggleSkillSelection: (state, action) => {
-      const skillIndex = state.skills.findIndex(skill => skill.name === action.payload);
+      const skillIndex = state.skills.findIndex(skill => skill.id === action.payload);
       if (skillIndex !== -1) {
         state.skills[skillIndex].isSelected = !state.skills[skillIndex].isSelected;
       }
     },
     toggleProfessionSelection: (state, action) => {
-      const professionIndex = state.professions.findIndex(profession => profession.name === action.payload);
+      const professionIndex = state.professions.findIndex(profession => profession.id === action.payload);
       if (professionIndex !== -1) {
         state.professions[professionIndex].isSelected = !state.professions[professionIndex].isSelected;
       }
@@ -37,6 +55,25 @@ const searchParamsSlice = createSlice({
       state.skills = [];
       state.professions = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProfessions.pending, (state) => {
+        // Вы можете установить флаг загрузки, если нужно
+        state.isLoading = true;
+      })
+      .addCase(fetchProfessions.fulfilled, (state, action) => {
+        state.professions = action.payload.map(profession => ({
+          name: profession.name.charAt(0).toUpperCase() + profession.name.slice(1),
+          id: profession.id,
+          isSelected: false
+        }));
+        state.isLoading = false; // Если используете флаг загрузки
+      })
+      .addCase(fetchProfessions.rejected, (state) => {
+        // Обработка ошибки
+        state.isLoading = false; // Если используете флаг загрузки
+      });
   },
 });
 
