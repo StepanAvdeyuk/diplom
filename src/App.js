@@ -5,7 +5,7 @@ import MainPage from "./pages/MainPage";
 import SearchPage from './pages/SearchPage';
 import CatalogPage from "./pages/CatalogPage";
 
-import { fetchProfessions } from './redux/reducers/searchParamsSlice';
+import { fetchProfessions, fetchSkills } from './redux/reducers/searchParamsSlice';
 
 function App() {
 
@@ -13,7 +13,10 @@ function App() {
 
 	React.useEffect(() => {
 		dispatch(fetchProfessions());
+		dispatch(fetchSkills());
 	}, [dispatch]);
+
+	
 
 
 	return (

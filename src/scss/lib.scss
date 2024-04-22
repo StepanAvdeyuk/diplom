@@ -80,21 +80,21 @@
 	border-radius: 20%;
 	background-color: #072551bc;
 }
-.checkbox input:checked + span:before {
-	animation: growAndFade 0.2s ease-out;
-} 
-@keyframes growAndFade {
-	0% {
-		opacity: 1;
-		transform: scale(1);
-	}
-	50% {
-		opacity: 0.5;
-		transform: scale(1.2);
-	}
-	100% {
-		opacity: 0;
-		transform: scale(1.5);
-	}
-}
+// .checkbox input:checked + span:before {
+// 	animation: growAndFade 0.2s ease-out;
+// } 
+// @keyframes growAndFade {
+// 	0% {
+// 		opacity: 1;
+// 		transform: scale(1);
+// 	}
+// 	50% {
+// 		opacity: 0.5;
+// 		transform: scale(1.2);
+// 	}
+// 	100% {
+// 		opacity: 0;
+// 		transform: scale(1.5);
+// 	}
+// }
 

@@ -2,15 +2,15 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSkillSelection } from '../redux/reducers/searchParamsSlice';
 
-const SkillItem = ({ name }) => {
+const SkillItem = ({ id, name }) => {
   const dispatch = useDispatch();
 
   const isSelected = useSelector(state =>
-    state.searchParams.skills.find(skill => skill.name === name)?.isSelected || false
+    state.searchParams.skills.find(skill => skill.id === id)?.isSelected || false
   );
 
   const handleCheckboxChange = () => {
-    dispatch(toggleSkillSelection(name));
+    dispatch(toggleSkillSelection(id));
   };
 
   return (

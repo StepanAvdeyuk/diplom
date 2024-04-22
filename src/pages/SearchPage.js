@@ -23,23 +23,43 @@ const SearchPage = () => {
   const [offset, setOffset] = React.useState(10);
 
   const [searchP, setSearchP] = React.useState(''); 
+  const [isLoadingP, setIsLoadingP] = React.useState(false);
+
   const [searchS, setSearchS] = React.useState('');
+  const [isLoadingS, setIsLoadingS] = React.useState(false);
 
   const [filteredProfessions, setFilteredProfessions] = React.useState([]);
+  const [filteredSkills, setFilteredSkills] = React.useState([]);
 
   const loadProfessions = React.useCallback(async (searchTerm) => {
     try {
       const response = await axios.get(`http://10.193.60.137:8000/api/search/?q=${searchTerm}`);
       const professions = response.data; 
       setFilteredProfessions(professions);
+      setIsLoadingP(false);
     } catch (error) {
       console.error('Ошибка загрузки направлений:', error);
+      setIsLoadingP(false);
     }
   }, []);
   const debouncedLoadProfessions = React.useCallback(debounce(loadProfessions, 300), [loadProfessions]);
 
+  const loadSkills = React.useCallback(async (searchTerm) => {
+    try {
+      const response = await axios.get(`http://10.193.60.137:8000/api/search/?q=${searchTerm}`);
+      const skills = response.data; 
+      setFilteredSkills(skills);
+      setIsLoadingS(false);
+    } catch (error) {
+      console.error('Ошибка загрузки направлений:', error);
+      setIsLoadingS(false);
+    }
+  }, []);
+  const debouncedLoadSkills = React.useCallback(debounce(loadSkills, 300), [loadSkills]);
+
   React.useEffect(() => {
     if (searchP) {
+      setIsLoadingP(true);
       debouncedLoadProfessions(searchP);
     } else {
       setFilteredProfessions([]);
@@ -47,17 +67,18 @@ const SearchPage = () => {
     return () => debouncedLoadProfessions.cancel();
   }, [searchP, debouncedLoadProfessions]);
 
+  React.useEffect(() => {
+    if (searchS) {
+      setIsLoadingS(true);
+      debouncedLoadSkills(searchS);
+    } else {
+      setFilteredSkills([]);
+    }
+    return () => debouncedLoadSkills.cancel();
+  }, [searchS, debouncedLoadSkills]);
+
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
-
-  // const filteredProfessions = professions.filter(item =>
-  //   item.name.toLowerCase().includes(searchP.toLowerCase())
-  // );
-
-  const filteredSkills = skills.filter(item =>
-    item.name.toLowerCase().includes(searchS.toLowerCase())
-  );
-
 
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
@@ -110,7 +131,7 @@ const SearchPage = () => {
             }) : filteredProfessions.map((item) => {
               return <ProfessionItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
           })}
-          {((searchP !== '') && (filteredProfessions.length == 0)) && <div className='search__param-none'>Ничего не найдено</div>}
+          {((searchP !== '') && (filteredProfessions.length == 0) && (!isLoadingP)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
         </div>
 
@@ -124,9 +145,12 @@ const SearchPage = () => {
             <img src={search} alt="search" />
           </div>    
           <div className="search__param-select">
-            {filteredSkills && filteredSkills.map((item) => {
-                return <SkillItem name={item.name}/>
+            {(searchS == '') ? skills && skills.map((item) => {
+                  return <SkillItem id={item.id} name={item.name}/>
+            }) : filteredSkills.map((item) => {
+                return <SkillItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
             })}
+            {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
         </div>
       </div>

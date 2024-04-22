@@ -58,21 +58,19 @@ const searchParamsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProfessions.pending, (state) => {
-        // Вы можете установить флаг загрузки, если нужно
-        state.isLoading = true;
-      })
       .addCase(fetchProfessions.fulfilled, (state, action) => {
         state.professions = action.payload.map(profession => ({
           name: profession.name.charAt(0).toUpperCase() + profession.name.slice(1),
           id: profession.id,
           isSelected: false
         }));
-        state.isLoading = false; // Если используете флаг загрузки
       })
-      .addCase(fetchProfessions.rejected, (state) => {
-        // Обработка ошибки
-        state.isLoading = false; // Если используете флаг загрузки
+      .addCase(fetchSkills.fulfilled, (state, action) => {
+        state.skills = action.payload.map(skill => ({
+          name: skill.name.charAt(0).toUpperCase() + skill.name.slice(1),
+          id: skill.id,
+          isSelected: false
+        }));
       });
   },
 });
