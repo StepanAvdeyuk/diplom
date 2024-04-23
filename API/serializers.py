@@ -42,4 +42,4 @@ ProjectsSerializer = create_model_serializer(Projects)
 class VacancyTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = VacancyTag
-        fields = ['id', 'name']
+        fields = ['id', 'annotation']

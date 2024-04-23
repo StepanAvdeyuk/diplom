@@ -1,5 +1,5 @@
 from django.db import models
-from ontology.models import VacancyTag, VacancyTagVariation
+from ontology.models import VacancyTag, VacancyTagVariation, SkillTag, SkillTagVariation
 
 
 class Heads(models.Model):
@@ -76,10 +76,9 @@ class Vacancies(models.Model):
         verbose_name_plural = 'Vacancies'
 
 class Skills_in_vacancies(models.Model):
-    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE)
-    # skill_name = models.ForeignKey(to=Skills, on_delete=models.CASCADE)
-    obligation = models.CharField(max_length=256,
-                                  choices=[('disciplines', 'disciplines'), ('additionally', 'additionally')])
+    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE, null=True)
+    skill_name = models.ForeignKey(to=SkillTag, on_delete=models.CASCADE, null=True)
+    priority = models.IntegerField(null=True)
 
 class Roles_in_vacancies(models.Model):
     role_name = models.ForeignKey(to=VacancyTag, on_delete=models.CASCADE)
