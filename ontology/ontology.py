@@ -1,23 +1,21 @@
 from owlready2 import get_ontology
 
-# Путь к файлу OWX
+
 file_path = 'ontology/second.owx'
+class OntologyManager:
+    _instance = None
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
-# Загрузка онтологии из файла
-ontology = get_ontology(f"file://{file_path}").load()
+    def __init__(self):
+        self.onto = get_ontology(f"file://{file_path}")
+        self.onto.load()
 
-# Вывести список всех классов в онтологии
-for cls in ontology.classes():
-    print(f"Класс: {cls}")
-    print("Свойства:")
-    for prop in cls.get_class_properties():  # Использование get_class_properties вместо get_properties
-        for range_cls in prop.range:
-            print(f"  {prop.name} диапазон: {range_cls}")
-
-    print("Индивиды:")
-    for instance in cls.instances():
-        print(f"  {instance}")
-    print("\n")
+    def get_ontology(self):
+        return self.onto
 
 # # Перебор всех свойств и анализ связей между классами
 # for prop in ontology.properties():

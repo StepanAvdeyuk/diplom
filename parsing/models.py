@@ -66,8 +66,6 @@ class Vacancies(models.Model):
     vacancy_additionally = models.TextField()
     vacancy_count = models.IntegerField(null=False)
 
-    # vacancy_role = models.ForeignKey(to = Roles, on_delete=models.CASCADE)
-
     def __str__(self):
         return f"{self.vacancy_name} - {self.vacancy_project_id}"
 
