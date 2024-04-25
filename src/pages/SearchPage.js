@@ -2,12 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import arrow from '../assets/nav-arrow.svg';
 import search from '../assets/search.png';
 import VacancyCard from '../components/VacancyCard';
 import ProfessionItem from '../components/ProfessionItem';
 import SkillItem from '../components/SkillItem';
 import Loader from '../components/Loader';
+import config from '../config';
 
 import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
 
@@ -20,14 +20,14 @@ const SearchPage = () => {
     setInput: setSearchP,
     data: filteredProfessions,
     isLoading: isLoadingP
-  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
+  } = useDebouncedSearch(`${config.API_URL}/api/role_search/`, 300);
 
   const {
     input: searchS,
     setInput: setSearchS,
     data: filteredSkills,
     isLoading: isLoadingS
-  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
+  } = useDebouncedSearch(`${config.API_URL}/api/skill_search/`, 300);
 
   const [data, setData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -38,13 +38,19 @@ const SearchPage = () => {
 
   const skills = useSelector(state => state.searchParams.skills);
   const professions = useSelector(state => state.searchParams.professions);
+  
+
+  const selectedProfessionsIds = professions.filter(professions => professions.isSelected).map(professions => professions.id);
+  const selectedSkillsIds = skills.filter(skill => skill.isSelected).map(skill => skill.id);
 
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
 
   const getData = () => {
     setIsLoading(true);
-    axios.get(`http://10.193.60.137:8000/vacancies`)
+    const queryParamsProfessions = selectedProfessionsIds.map(id => `vacancy_tags=${id}`).join('&');
+    const queryParamsSkills = selectedSkillsIds.map(id => `skill_tags=${id}`).join('&');
+    axios.get(`${config.API_URL}/api/search_vacancies/?${queryParamsSkills}&${queryParamsProfessions}`)
     .then((data) => {   
         setData(data.data);
         setIsLoading(false);
@@ -57,7 +63,7 @@ const SearchPage = () => {
 
   React.useEffect(() => {
     getData();
-  }, [])
+  }, [skills, professions])
 
   function getFavorites() {
     return JSON.parse(localStorage.getItem('favorites')) || [];
@@ -69,7 +75,9 @@ const SearchPage = () => {
     <>
     <div className="page__title">
       <Link to='/'>
-        <img src={arrow} alt="" />
+        <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 13L1 7L7 1" stroke="#072551" stroke-opacity="0.75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </Link>
       <h2>Поиск вакансий</h2>
     </div>
@@ -85,10 +93,18 @@ const SearchPage = () => {
             <img src={search} alt="search" />
           </div>  
           <div className="search__param-select">
-            {(searchP == '') ? professions && professions.map((item) => {
+            {(searchP === '') ? professions && [...professions].sort((a, b) => {
+                        if (a.isSelected && !b.isSelected) {
+                          return -1; 
+                        }
+                        if (b.isSelected && !a.isSelected) {
+                          return 1; 
+                        }
+                        return 0;
+                        }).map((item) => {
                 return <ProfessionItem id={item.id} name={item.name}/>
             }) : filteredProfessions.map((item) => {
-              return <ProfessionItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
+              return <ProfessionItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
           })}
           {((searchP !== '') && (filteredProfessions.length == 0) && (!isLoadingP)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
@@ -104,10 +120,18 @@ const SearchPage = () => {
             <img src={search} alt="search" />
           </div>    
           <div className="search__param-select">
-            {(searchS == '') ? skills && skills.map((item) => {
+            {(searchS === '') ? skills && [...skills].sort((a, b) => {
+                        if (a.isSelected && !b.isSelected) {
+                          return -1; 
+                        }
+                        if (b.isSelected && !a.isSelected) {
+                          return 1; 
+                        }
+                        return 0;
+                        }).map((item) => {
                   return <SkillItem id={item.id} name={item.name}/>
             }) : filteredSkills.map((item) => {
-                return <SkillItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
+                return <SkillItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
             })}
             {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>

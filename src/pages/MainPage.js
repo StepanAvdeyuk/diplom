@@ -9,6 +9,7 @@ import arrow from '../assets/main-arrow.svg';
 import search from '../assets/search.png';
 import ProfessionItem from '../components/ProfessionItem';
 import SkillItem from '../components/SkillItem';
+import config from '../config';
 
 const MainPage = () => {
 
@@ -17,14 +18,14 @@ const MainPage = () => {
     setInput: setSearchP,
     data: filteredProfessions,
     isLoading: isLoadingP
-  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
+  } = useDebouncedSearch(`${config.API_URL}/api/role_search/`, 300);
 
   const {
     input: searchS,
     setInput: setSearchS,
     data: filteredSkills,
     isLoading: isLoadingS
-  } = useDebouncedSearch('http://10.193.60.137:8000/api/search', 300);
+  } = useDebouncedSearch(`${config.API_URL}/api/skill_search/`, 300);
 
   const [professionModal, setProffesionModal] = React.useState(false);
   const [skillsModal, setSkillsModal] = React.useState(false);
@@ -60,10 +61,18 @@ const MainPage = () => {
                 <img src={search} alt="search"/>                
               </div>
               <div className="main__search-list scrollBar">
-                    {(searchP == '') ? professions && professions.map((item) => {
+                    {(searchP == '') ? professions && [...professions].sort((a, b) => {
+                        if (a.isSelected && !b.isSelected) {
+                          return -1; 
+                        }
+                        if (b.isSelected && !a.isSelected) {
+                          return 1; 
+                        }
+                        return 0;
+                        }).map((item) => {
                           return <ProfessionItem id={item.id} name={item.name}/>
                     }) : filteredProfessions.map((item) => {
-                        return <ProfessionItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
+                        return <ProfessionItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
                     })}
                     {((searchP !== '') && (filteredProfessions.length == 0) && (!isLoadingP)) && <div className='search__param-none'>Ничего не найдено</div>}
               </div>
@@ -80,10 +89,18 @@ const MainPage = () => {
                 <img src={search} alt="arrow"/>                
               </div>
               <div className="main__search-list scrollBar">
-                    {(searchS == '') ? skills && skills.map((item) => {
+                    {(searchS == '') ? skills && [...skills].sort((a, b) => {
+                        if (a.isSelected && !b.isSelected) {
+                          return -1; 
+                        }
+                        if (b.isSelected && !a.isSelected) {
+                          return 1; 
+                        }
+                        return 0;
+                        }).map((item) => {
                           return <SkillItem id={item.id} name={item.name}/>
                     }) : filteredSkills.map((item) => {
-                        return <SkillItem id={item.id} name={item.name.charAt(0).toUpperCase() + item.name.slice(1)}/>
+                        return <SkillItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
                     })}
                     {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
               </div>

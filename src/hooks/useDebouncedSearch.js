@@ -10,8 +10,12 @@ export const useDebouncedSearch = (url, delay) => {
   const fetchData = useCallback(async (searchTerm) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${url}?q=${searchTerm}`);
-      setData(response.data);
+      const response = await axios.get(`${url}?q=${encodeURIComponent(searchTerm)}`);
+      const newData = response.data.map(item => ({
+        id: item.id,
+        name: item.annotation  
+      }));
+      setData(newData);
     } catch (error) {
         console.error('Ошибка загрузки:', error);
     } finally {

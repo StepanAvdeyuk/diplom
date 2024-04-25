@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import config from '../../config';
+
 
 const initialState = {
   skills: [],
@@ -8,7 +10,7 @@ const initialState = {
 export const fetchProfessions = createAsyncThunk(
   'searchParams/fetchProfessions',
   async () => {
-    const response = await fetch('http://10.193.60.137:8000/api/search/?q=');
+    const response = await fetch(`${config.API_URL}/api/role_search/?q=`);
     const professions = await response.json();
     return professions;
   }
@@ -17,7 +19,7 @@ export const fetchProfessions = createAsyncThunk(
 export const fetchSkills = createAsyncThunk(
   'searchParams/fetchSkills',
   async () => {
-    const response = await fetch('http://10.193.60.137:8000/api/search/?q=');
+    const response = await fetch(`${config.API_URL}/api/skill_search/?q=`);
     const skills = await response.json();
     return skills;
   }
@@ -60,14 +62,14 @@ const searchParamsSlice = createSlice({
     builder
       .addCase(fetchProfessions.fulfilled, (state, action) => {
         state.professions = action.payload.map(profession => ({
-          name: profession.name.charAt(0).toUpperCase() + profession.name.slice(1),
+          name: profession.annotation?.charAt(0).toUpperCase() + profession.annotation?.slice(1),
           id: profession.id,
           isSelected: false
         }));
       })
       .addCase(fetchSkills.fulfilled, (state, action) => {
         state.skills = action.payload.map(skill => ({
-          name: skill.name.charAt(0).toUpperCase() + skill.name.slice(1),
+          name: skill.annotation?.charAt(0).toUpperCase() + skill.annotation?.slice(1),
           id: skill.id,
           isSelected: false
         }));

@@ -9,8 +9,8 @@ const VacancyCard = ({vacancyName, isFavorite, vacancyId, projectId, projectName
   const [isModal, setIsModal] = React.useState(false);  
   const [isLiked, setIsLiked] = React.useState(isFavorite);  
 
-  vacancyDisciplines = vacancyDisciplines.substring(1, vacancyDisciplines.length - 1).replace("Обязательно знать и уметь: ", "");
-  vacancyAdditionally = vacancyAdditionally.substring(1, vacancyAdditionally.length - 1).replace("Желательно знать и уметь: ", "");
+  vacancyDisciplines = vacancyDisciplines.substring(1, vacancyDisciplines.length - 1).replace("Обязательно знать и уметь: ", "").replace(/'/g, "");
+  vacancyAdditionally = vacancyAdditionally.substring(1, vacancyAdditionally.length - 1).replace("Желательно знать и уметь: ", "").replace(/'/g, "");
 
     let projectStageStatus = '';
 

@@ -16,7 +16,7 @@ const SkillItem = ({ id, name }) => {
   return (
     <label className="checkbox">
       <input type='checkbox' name='checkbox' checked={isSelected} onChange={handleCheckboxChange} />
-      {name}
+      <div>{name}</div>
       <span></span>
     </label>
   );

@@ -27,7 +27,6 @@
 }
 
 .checkbox{
-	width: 100%;
 	display:flex;
 	align-items: center;
 	justify-content: flex-end;
@@ -37,7 +36,14 @@
     font-weight: 400;
     color: $main-text;
     margin-bottom: 12px;
-
+	overflow: hidden;
+	div {
+		font-weight: 400;
+		color: $main-text;
+		font-size: 18px;
+		width: fit-content;
+		display: inline;
+	}
 }
 .checkbox input{
 	display:none;
@@ -56,7 +62,7 @@
 	background-color: transparent;
     border: 1px solid $main-text;
 }
-.checkbox input:checked + span:after{
+.checkbox input:checked ~ span:after{
 	content: "\2713";
 	display: block;
 	width: 9px;
@@ -64,11 +70,11 @@
 	font-size: 10px;
 	color: #ffffff;
 }
-.checkbox input:checked + span {
+.checkbox input:checked ~ span {
 	background-color: $main-color;
     border: 1px solid $main-color;
 }
-.checkbox input:disabled + span {
+.checkbox input:disabled ~ span {
 	background-color: #e5e5e5;
 }
 .checkbox span:before{
