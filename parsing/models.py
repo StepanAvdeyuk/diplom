@@ -76,8 +76,11 @@ class Vacancies(models.Model):
 class Skills_in_vacancies(models.Model):
     vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE, null=True)
     skill_name = models.ForeignKey(to=SkillTag, on_delete=models.CASCADE, null=True)
+    obligation = models.IntegerField(null=True)
     priority = models.IntegerField(null=True)
+
 
 class Roles_in_vacancies(models.Model):
     role_name = models.ForeignKey(to=VacancyTag, on_delete=models.CASCADE)
-    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE)
+    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE, related_name="roles_in_vacancies")
+    priority = models.IntegerField(null=True)
