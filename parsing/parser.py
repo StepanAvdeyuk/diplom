@@ -81,7 +81,7 @@ def clear_data():
     Vacancies.objects.all().delete()
 
 
-def upload_data():
+def upload_data(selected_projects):
     for project in selected_projects:
         name_parts = project['head'].split()
 

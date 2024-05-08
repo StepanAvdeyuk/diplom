@@ -1,69 +1,22 @@
-import pandas as pd
 import string
+from natasha import Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger, Doc
 from django.db import transaction
-from .models import ComplexVacancyTag, VacancyTag, VacancyTagVariation, ComplexSkillTag, SkillTag, SkillTagVariation
+from .models import ComplexVacancyTag, VacancyTag, ComplexSkillTag, SkillTag
 from parsing.models import Vacancies, Roles_in_vacancies, Skills_in_vacancies
-from ontology.ontology import OntologyManager
+from ontology.models import FileUpload
+from ontology.utils import OntologyManager
 
-class DataImporter:
-    def __init__(self, filepath, tag_type='vacancy'):
-        self.filepath = filepath
-        self.tag_type = tag_type
-
-        # Сопоставление типов тегов с моделями
-        if tag_type == 'vacancy':
-            self.complex_tag_model = ComplexVacancyTag
-            self.tag_model = VacancyTag
-            self.tag_variation_model = VacancyTagVariation
-        elif tag_type == 'skill':
-            self.complex_tag_model = ComplexSkillTag
-            self.tag_model = SkillTag
-            self.tag_variation_model = SkillTagVariation
-
-    def read_variations(self):
-        # Очистка предыдущих данных
-        self.complex_tag_model.objects.all().delete()
-        self.tag_model.objects.all().delete()
-        self.tag_variation_model.objects.all().delete()
-
-        # Чтение файла Excel
-        df = pd.read_excel(self.filepath, header=None)
-
-        # Чтение сложных тегов из первого столбца
-        complex_tags = [tag.strip() for tag in df.iloc[:, 0].dropna()]
-        with transaction.atomic():
-            for tag in complex_tags:
-                self.complex_tag_model.objects.get_or_create(phrase=tag)
-
-        # Обработка тегов и вариаций
-        for col in range(1, df.shape[1]):
-            tag_name = df.iloc[0, col]  # Тег находится в первой строке
-            annotation = df.iloc[1, col]  # Аннотация находится во второй строке
-            if pd.notnull(tag_name):
-                annotation = annotation.strip() if pd.notnull(annotation) else ''
-                tag, created = self.tag_model.objects.get_or_create(
-                    name=tag_name,
-                    defaults={'annotation': annotation})
-                variations = df.iloc[2:, col].dropna().apply(str.strip).tolist()
-                with transaction.atomic():
-                    for variation in variations:
-                        self.tag_variation_model.objects.get_or_create(tag=tag, variation=variation)
-
-# # Для вакансий
-# vacancy_importer = DataImporter(filepath='ontology/non_skill_variations.xlsx', tag_type='vacancy')
-# vacancy_importer.read_variations()
-#
-# # Для навыков
-# skill_importer = DataImporter(filepath='ontology/skill_variations.xlsx', tag_type='skill')
-# skill_importer.read_variations()
-
+# Инициализация компонентов Natasha
+segmenter = Segmenter()
+morph_vocab = MorphVocab()
+emb = NewsEmbedding()
+morph_tagger = NewsMorphTagger(emb)
 
 def get_complex_vacancy_tags():
     return [tag.phrase for tag in ComplexVacancyTag.objects.all()]
 
 def get_complex_skill_tags():
     return [tag.phrase for tag in ComplexSkillTag.objects.all()]
-
 
 def get_vacancies_tags_dict():
     tags_dict = {}
@@ -79,16 +32,26 @@ def get_skills_tags_dict():
 
 def normalize_text(text, complex_tags):
     text = text.lower()
-    text = text.replace('/', ' ').replace('\\', ' ')
     table = str.maketrans('', '', string.punctuation.translate(
         str.maketrans('', '', '+-._#')))
+    text = text.translate(table).replace('-', ' ')
+
+    doc = Doc(text)
+    doc.segment(segmenter)
+    doc.tag_morph(morph_tagger)
+
+    for token in doc.tokens:
+        token.lemmatize(morph_vocab)
+
+    lemmatized_text = ' '.join([token.lemma for token in doc.tokens])
 
     # Обработка сложных тегов
     for tag in complex_tags:
-        if tag in text:
-            text = text.replace(tag, tag.replace(' ', '_'))
+        if tag in lemmatized_text:
+            lemmatized_text = lemmatized_text.replace(tag, tag.replace(' ', '_'))
 
-    normalized_text = [word.translate(table).replace('_', ' ') for word in text.split()]
+    normalized_text = [word.translate(table).replace('_', ' ') for word in lemmatized_text.split()]
+
     return normalized_text
 
 
@@ -99,7 +62,6 @@ def match_tags(vacancy_text, tags_dict):
             if word in variations and tag not in matched_tags:
                 matched_tags.append(tag)
     return matched_tags
-
 
 def tag_vacancies():
     Roles_in_vacancies.objects.all().delete()
@@ -154,74 +116,41 @@ def tag_vacancies():
     print(f"Покрытие ролей: {vacancy_tag_coverage:.2f}%")
     print(f"Покрытие навыков: {skill_tag_coverage:.2f}%")
 
-
-# def check_vacancy_tags():
-#     onto = OntologyManager.get_instance().get_ontology()
-#     all_skills_data = {}
-#     original_skills_data = {}
-#
-#     # Сначала собираем исходные данные о навыках
-#     for siv in Skills_in_vacancies.objects.all():
-#         skill_name = siv.skill_name.name.lower()
-#         vacancy_id = siv.vacancy_id_id
-#         original_skills_data.setdefault(vacancy_id, {}).update({skill_name: siv.obligation})
-#
-#     # Сбор информации о навыках для каждой роли в каждой вакансии
-#     for riv in Roles_in_vacancies.objects.all():
-#         role_name = riv.role_name.name
-#         vacancy_id = riv.vacancy_id_id
-#         role_instance = next((inst for inst in onto.role.instances() if inst.name == role_name), None)
-#
-#         if role_instance:
-#             all_skills_data.setdefault(vacancy_id, set()).update(get_skills_from_ontology(role_instance))
-#         else:
-#             if vacancy_id in original_skills_data:
-#                 most_likely_role = infer_roles_from_skills(vacancy_id, original_skills_data[vacancy_id], onto)
-#                 if most_likely_role:
-#                     all_skills_data.setdefault(vacancy_id, set()).update(get_skills_from_ontology(most_likely_role))
-#
-#     # Добавляем навыки, которые присутствуют только в исходной информации
-#     for vacancy_id, skills in original_skills_data.items():
-#         all_skills_data.setdefault(vacancy_id, set()).update(skills)
-#
-#     print(all_skills_data)
-#     # Обработка и обновление навыков в базе данных
-#     update_vacancy_skills(all_skills_data, original_skills_data)
-
-
 def check_vacancy_tags():
-    onto = OntologyManager.get_instance().get_ontology()
+    # Автоматическая загрузка последней загруженной онтологии, если она ещё не загружена
+    onto_manager = OntologyManager.get_instance()
+    if onto_manager.get_ontology() is None:
+        last_loaded_file = FileUpload.objects.filter(tag_type='ontology', last_loaded=True).first()
+        if last_loaded_file:
+            print(f"Автоматически загружаем последнюю онтологию из {last_loaded_file.file.path}")
+            onto_manager.load_ontology(last_loaded_file.file.path)
+        else:
+            raise ValueError("Онтология не загружена и не была найдена ни одна ранее загруженная онтология.")
+
     ontology_skills_data = {}
     original_skills_data = {}
 
-    # Сначала собираем исходные данные о навыках
     for siv in Skills_in_vacancies.objects.all():
         skill_name = siv.skill_name.name.lower()
         vacancy_id = siv.vacancy_id_id
         original_skills_data.setdefault(vacancy_id, {}).update({skill_name: siv.obligation})
 
-    # Сбор информации о навыках для каждой роли в каждой вакансии
     for riv in Roles_in_vacancies.objects.all():
         role_name = riv.role_name.name
         vacancy_id = riv.vacancy_id_id
-        role_instance = next((inst for inst in onto.role.instances() if inst.name == role_name), None)
+        role_instance = next((inst for inst in onto_manager.get_ontology().role.instances() if inst.name == role_name), None)
 
         if role_instance:
             ontology_skills_data.setdefault(vacancy_id, set()).update(get_skills_from_ontology(role_instance))
         else:
-            # Поиск наиболее вероятной роли по навыкам
             if vacancy_id in original_skills_data:
-                most_likely_role = infer_roles_from_skills(vacancy_id, original_skills_data[vacancy_id], onto)
+                most_likely_role = infer_roles_from_skills(vacancy_id, original_skills_data[vacancy_id], onto_manager.get_ontology())
                 if most_likely_role:
-                    print(f"Наиболее вероятная роль '{most_likely_role}' найдена по навыкам.")
-                    ontology_skills_data.setdefault(vacancy_id, set()).update(
-                        get_skills_from_ontology(most_likely_role))
+                    ontology_skills_data.setdefault(vacancy_id, set()).update(get_skills_from_ontology(most_likely_role))
 
-    # Объединение навыков из онтологии и исходных навыков
     all_skills_data = {key: ontology_skills_data.get(key, set()).union(original_skills_data.get(key, set()))
                        for key in set(ontology_skills_data).union(set(original_skills_data))}
 
-    # Обработка и обновление навыков в базе данных
     update_vacancy_skills(all_skills_data, original_skills_data, ontology_skills_data)
 
 def infer_roles_from_skills(vacancy_id, skills_dict, onto):

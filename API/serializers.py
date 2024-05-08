@@ -35,16 +35,16 @@ class VacanciesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vacancies
         fields = ['vacancy_id', 'vacancy_name', 'project_id', 'project_name', 'project_type', 'project_head', 'project_stage',
-                  'project_url', 'vacancy_disciplines', 'vacancy_additionally']
+                  'project_url', 'vacancy_disciplines', 'vacancy_additionally', 'vacancy_count']
 
 ProjectsSerializer = create_model_serializer(Projects)
 
 class VacancyTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = VacancyTag
-        fields = ['id', 'annotation']
+        fields = ['id', 'name', 'annotation']
 
 class SkillTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = SkillTag
-        fields = ['id', 'annotation']
+        fields = ['id', 'name', 'annotation']
