@@ -57,6 +57,18 @@
             }
         }
     }
+    &__favorite {
+        padding: 2px 6px;
+        width: 200px;
+        font-size: 14px;
+        font-weight: 400;
+        color: $main-color;
+        background-color: transparent;
+        border: 1px solid rgba(10, 108, 255, 0.6);
+        border-radius: 6px;
+        display: block;
+        margin: 0 auto;
+    }
     &__param {
         &-wrapper {
             margin-bottom: 25px;

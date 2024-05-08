@@ -30,6 +30,7 @@ const SearchPage = () => {
   } = useDebouncedSearch(`${config.API_URL}/api/skill_search/`, 300);
 
   const [data, setData] = React.useState([]);
+  const [allData, setAllData] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [showFavorites, setShowFavorites] = React.useState(false);
@@ -60,6 +61,24 @@ const SearchPage = () => {
         setIsLoading(false);
     })
   }
+
+  const getAllData = () => {
+    setIsLoading(true);
+    axios.get(`${config.API_URL}/api/search_vacancies/?&$`)
+    .then((data) => {   
+        setAllData(data.data);
+        setIsLoading(false);
+    }).catch((e) => {
+        alert('Ошибка получения вакансий')
+        console.log(e);
+        setIsLoading(false);
+    })
+  }
+
+  React.useEffect(() => {
+    getAllData();
+  }, [])
+
 
   React.useEffect(() => {
     getData();
@@ -142,10 +161,26 @@ const SearchPage = () => {
               <div className="title">Вакансия</div>
               <div className="title">Проект</div>
               <div className="title">Стадия проекта</div>
-              <button onClick={() => setShowFavorites(!showFavorites)}>Кнопка</button>
+              <button className='search__favorite' onClick={() => setShowFavorites(!showFavorites)}>{showFavorites ? 'Скрыть избранное' : 'Показать избранное'}</button>
             </div>
-            {data && !isLoading && data.slice(0, offset).map((item) =>  {
-            if (!showFavorites) {
+            {data && !isLoading && !showFavorites && data.slice(0, offset).map((item) =>  {
+                return <VacancyCard vacancyName={item.vacancy_name}
+                                    vacancyCount={item.vacancy_count}
+                                    isFavorite={favorites.includes(item.vacancy_id) ? true : false}
+                                    vacancyId={item.vacancy_id}
+                                    projectId={item.project_id}
+                                    projectName={item.project_name}
+                                    projectType={item.project_type}
+                                    projectHead={item.project_head}
+                                    projectStage={item.project_stage}
+                                    projectUrl={item.project_url}
+                                    vacancyDisciplines={item.vacancy_disciplines}
+                                    vacancyAdditionally={item.vacancy_additionally}
+                                    key={item.vacancy_id}
+                />
+            })}
+            {allData && !isLoading && showFavorites && allData.slice(0, offset).map((item) =>  {
+              if (favorites.includes(item.vacancy_id)) {
               return <VacancyCard vacancyName={item.vacancy_name}
                                   vacancyCount={item.vacancy_count}
                                   isFavorite={favorites.includes(item.vacancy_id) ? true : false}
@@ -159,26 +194,8 @@ const SearchPage = () => {
                                   vacancyDisciplines={item.vacancy_disciplines}
                                   vacancyAdditionally={item.vacancy_additionally}
                                   key={item.vacancy_id}
-              />} else {
-                if (favorites.includes(item.vacancy_id)) {
-                  return <VacancyCard vacancyName={item.vacancy_name}
-                                  isFavorite={favorites.includes(item.vacancy_id) ? true : false}
-                                  vacancyCount={item.vacancy_count}
-                                  vacancyId={item.vacancy_id}
-                                  projectId={item.project_id}
-                                  projectName={item.project_name}
-                                  projectType={item.project_type}
-                                  projectHead={item.project_head}
-                                  projectStage={item.project_stage}
-                                  projectUrl={item.project_url}
-                                  vacancyDisciplines={item.vacancy_disciplines}
-                                  vacancyAdditionally={item.vacancy_additionally}
-                                  key={item.vacancy_id}/>
-                }
-              }
-            }
-            
-            )}
+              />}
+            })}
             {isLoading && loaderData.map((item, i) => {
               return <Loader key={i}/>
             })}
