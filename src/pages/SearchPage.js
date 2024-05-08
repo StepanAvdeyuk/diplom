@@ -40,16 +40,16 @@ const SearchPage = () => {
   const professions = useSelector(state => state.searchParams.professions);
   
 
-  const selectedProfessionsIds = professions.filter(professions => professions.isSelected).map(professions => professions.id);
-  const selectedSkillsIds = skills.filter(skill => skill.isSelected).map(skill => skill.id);
+  const selectedProfessionsIds = professions.filter(professions => professions.isSelected);
+  const selectedSkillsIds = skills.filter(skill => skill.isSelected);
 
   const selectedProfessionsCount = useSelector(state => state.searchParams.professions.filter(profession => profession.isSelected).length);
   const selectedSkillsCount = useSelector(state => state.searchParams.skills.filter(skill => skill.isSelected).length);
 
   const getData = () => {
     setIsLoading(true);
-    const queryParamsProfessions = selectedProfessionsIds.map(id => `vacancy_tags=${id}`).join('&');
-    const queryParamsSkills = selectedSkillsIds.map(id => `skill_tags=${id}`).join('&');
+    const queryParamsProfessions = selectedProfessionsIds.map(item => `vacancy_tags=${item.sendName}`).join('&');
+    const queryParamsSkills = selectedSkillsIds.map(item => `skill_tags=${item.sendName}`).join('&');
     axios.get(`${config.API_URL}/api/search_vacancies/?${queryParamsSkills}&${queryParamsProfessions}`)
     .then((data) => {   
         setData(data.data);

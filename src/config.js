@@ -1,5 +1,5 @@
 const dev = {
-    API_URL: "http://10.193.61.141:8000"
+    API_URL: "http://10.193.62.131:8000"
   };
   
   const prod = {

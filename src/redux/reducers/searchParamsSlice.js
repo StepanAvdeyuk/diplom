@@ -63,6 +63,7 @@ const searchParamsSlice = createSlice({
       .addCase(fetchProfessions.fulfilled, (state, action) => {
         state.professions = action.payload.map(profession => ({
           name: profession.annotation?.charAt(0).toUpperCase() + profession.annotation?.slice(1),
+          sendName: profession.name,
           id: profession.id,
           isSelected: false
         }));
@@ -70,6 +71,7 @@ const searchParamsSlice = createSlice({
       .addCase(fetchSkills.fulfilled, (state, action) => {
         state.skills = action.payload.map(skill => ({
           name: skill.annotation?.charAt(0).toUpperCase() + skill.annotation?.slice(1),
+          sendName: skill.name,
           id: skill.id,
           isSelected: false
         }));
