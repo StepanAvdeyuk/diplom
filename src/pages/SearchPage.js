@@ -76,7 +76,7 @@ const SearchPage = () => {
     <div className="page__title">
       <Link to='/'>
         <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 13L1 7L7 1" stroke="#072551" stroke-opacity="0.75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 13L1 7L7 1" stroke="#072551" strokeOpacity="0.75" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </Link>
       <h2>Поиск вакансий</h2>
@@ -102,9 +102,9 @@ const SearchPage = () => {
                         }
                         return 0;
                         }).map((item) => {
-                return <ProfessionItem id={item.id} name={item.name}/>
+                return <ProfessionItem id={item.id} key={item.id} name={item.name}/>
             }) : filteredProfessions.map((item) => {
-              return <ProfessionItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
+              return <ProfessionItem id={item.id} key={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
           })}
           {((searchP !== '') && (filteredProfessions.length == 0) && (!isLoadingP)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
@@ -129,9 +129,9 @@ const SearchPage = () => {
                         }
                         return 0;
                         }).map((item) => {
-                  return <SkillItem id={item.id} name={item.name}/>
+                  return <SkillItem id={item.id} key={item.id} name={item.name}/>
             }) : filteredSkills.map((item) => {
-                return <SkillItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
+                return <SkillItem id={item.id} key={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
             })}
             {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
@@ -147,6 +147,7 @@ const SearchPage = () => {
             {data && !isLoading && data.slice(0, offset).map((item) =>  {
             if (!showFavorites) {
               return <VacancyCard vacancyName={item.vacancy_name}
+                                  vacancyCount={item.vacancy_count}
                                   isFavorite={favorites.includes(item.vacancy_id) ? true : false}
                                   vacancyId={item.vacancy_id}
                                   projectId={item.project_id}
@@ -157,10 +158,12 @@ const SearchPage = () => {
                                   projectUrl={item.project_url}
                                   vacancyDisciplines={item.vacancy_disciplines}
                                   vacancyAdditionally={item.vacancy_additionally}
+                                  key={item.vacancy_id}
               />} else {
                 if (favorites.includes(item.vacancy_id)) {
                   return <VacancyCard vacancyName={item.vacancy_name}
                                   isFavorite={favorites.includes(item.vacancy_id) ? true : false}
+                                  vacancyCount={item.vacancy_count}
                                   vacancyId={item.vacancy_id}
                                   projectId={item.project_id}
                                   projectName={item.project_name}
@@ -169,14 +172,15 @@ const SearchPage = () => {
                                   projectStage={item.project_stage}
                                   projectUrl={item.project_url}
                                   vacancyDisciplines={item.vacancy_disciplines}
-                                  vacancyAdditionally={item.vacancy_additionally}/>
+                                  vacancyAdditionally={item.vacancy_additionally}
+                                  key={item.vacancy_id}/>
                 }
               }
             }
             
             )}
-            {isLoading && loaderData.map(item => {
-              return <Loader/>
+            {isLoading && loaderData.map((item, i) => {
+              return <Loader key={i}/>
             })}
             {!isLoading && !showFavorites && offset < data.length && <div className="search__more">
               <button onClick={() => {setOffset(offset + 10)}}>Показать еще</button>

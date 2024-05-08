@@ -70,9 +70,9 @@ const MainPage = () => {
                         }
                         return 0;
                         }).map((item) => {
-                          return <ProfessionItem id={item.id} name={item.name}/>
+                          return <ProfessionItem id={item.id} key={item.id} name={item.name}/>
                     }) : filteredProfessions.map((item) => {
-                        return <ProfessionItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
+                        return <ProfessionItem id={item.id} key={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
                     })}
                     {((searchP !== '') && (filteredProfessions.length == 0) && (!isLoadingP)) && <div className='search__param-none'>Ничего не найдено</div>}
               </div>
@@ -98,9 +98,9 @@ const MainPage = () => {
                         }
                         return 0;
                         }).map((item) => {
-                          return <SkillItem id={item.id} name={item.name}/>
+                          return <SkillItem id={item.id} key={item.id} name={item.name}/>
                     }) : filteredSkills.map((item) => {
-                        return <SkillItem id={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
+                        return <SkillItem id={item.id} key={item.id} name={item.name?.charAt(0).toUpperCase() + item.name?.slice(1)}/>
                     })}
                     {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
               </div>

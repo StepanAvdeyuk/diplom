@@ -4,7 +4,7 @@ import arrow from '../assets/vac-arrow.svg';
 import link from '../assets/link.png';
 import heart from '../assets/heart.svg'; 
 
-const VacancyCard = ({vacancyName, isFavorite, vacancyId, projectId, projectName, projectType, projectHead, projectStage, projectUrl, vacancyDisciplines, vacancyAdditionally}) => {
+const VacancyCard = ({vacancyName, vacancyCount, isFavorite, vacancyId, projectId, projectName, projectType, projectHead, projectStage, projectUrl, vacancyDisciplines, vacancyAdditionally}) => {
 
   const [isModal, setIsModal] = React.useState(false);  
   const [isLiked, setIsLiked] = React.useState(isFavorite);  
@@ -63,6 +63,7 @@ const VacancyCard = ({vacancyName, isFavorite, vacancyId, projectId, projectName
   return (
     <>
     <div className={isModal ? "vc__wrapper active" : "vc__wrapper"}>
+        <span className='vc__count'>x{vacancyCount}</span>
         <div className="vc__vacancy">{vacancyName.charAt(0).toUpperCase() + vacancyName.slice(1)}</div>
         <div className="vc__project">№{projectId} {projectName}</div>
         <div className="vc__stage">{projectStageStatus}</div>

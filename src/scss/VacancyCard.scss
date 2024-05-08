@@ -1,4 +1,13 @@
 .vc {
+    &__count {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        background-color: rgba(10, 108, 255, 0.06);
+        padding: 2px 6px;
+        color: rgba(10, 108, 255, 0.8);
+        border-radius: 10px;
+    }
     &__wrapper {
         padding: 16px 0;
         border-radius: 15px;
@@ -56,6 +65,7 @@
         }
     }
     &__vacancy {
+        position: relative;
         border-right: 1px solid rgba(10, 108, 255, 0.299);
         height: 100%;
         display: flex;
