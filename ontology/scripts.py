@@ -1,10 +1,10 @@
-import string
+import string, os
 from natasha import Segmenter, MorphVocab, NewsEmbedding, NewsMorphTagger, Doc
 from django.db import transaction
 from .models import ComplexVacancyTag, VacancyTag, ComplexSkillTag, SkillTag
 from parsing.models import Vacancies, Roles_in_vacancies, Skills_in_vacancies
 from ontology.models import FileUpload
-from ontology.utils import OntologyManager
+from owlready2 import get_ontology, onto_path
 
 # Инициализация компонентов Natasha
 segmenter = Segmenter()
@@ -234,3 +234,27 @@ def determine_priority(skill_name, skill_details, ontology_skills):
 
     elif skill_in_ontology and not skill_in_original:
         return 5
+
+class OntologyManager:
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self):
+        self.onto = None
+
+    def load_ontology(self, file_path):
+        # Clean up existing ontology
+        if self.onto:
+            self.onto.destroy()
+
+        onto_path.append(os.path.dirname(file_path))
+        self.onto = get_ontology(f"file://{file_path}")
+        self.onto.load()
+
+    def get_ontology(self):
+        return self.onto

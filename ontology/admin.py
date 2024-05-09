@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import FileUpload
 from .utils import DataImporter, OntologyManager, process_file
 from django.core.exceptions import ValidationError
+from ontology.scripts import tag_vacancies, check_vacancy_tags
 
 class FileUploadForm(forms.ModelForm):
     class Meta:
@@ -37,8 +38,10 @@ class FileUploadAdmin(admin.ModelAdmin):
         try:
             obj.full_clean()
             super().save_model(request, obj, form, change)
-            # Process the file based on the type
-            process_file(obj)
+            successful = process_file(obj)
+            if successful:
+                tag_vacancies()
+                check_vacancy_tags()
         except ValidationError as e:
             self.message_user(request, e.message, level='error')
 

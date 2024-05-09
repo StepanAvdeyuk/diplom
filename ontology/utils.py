@@ -3,7 +3,6 @@ from owlready2 import get_ontology, onto_path
 from django.db import transaction
 from .models import ComplexVacancyTag, VacancyTag, VacancyTagVariation, ComplexSkillTag, SkillTag, SkillTagVariation, FileUpload
 import os
-from ontology.scripts import tag_vacancies, check_vacancy_tags
 
 class OntologyManager:
     _instance = None
@@ -77,13 +76,11 @@ def process_file(file_upload):
     if file_upload.tag_type == 'vacancy':
         vacancy_importer = DataImporter(filepath=file_upload.file.path, tag_type='vacancy')
         vacancy_importer.read_variations()
-        tag_vacancies()
-        check_vacancy_tags()
+        return True
     elif file_upload.tag_type == 'skill':
         skill_importer = DataImporter(filepath=file_upload.file.path, tag_type='skill')
         skill_importer.read_variations()
-        tag_vacancies()
-        check_vacancy_tags()
+        return True
     elif file_upload.tag_type == 'ontology':
         FileUpload.objects.filter(tag_type='ontology').update(last_loaded=False)
         file_upload.last_loaded = True
@@ -91,3 +88,5 @@ def process_file(file_upload):
         ontology_manager = OntologyManager.get_instance()
         ontology_manager.load_ontology(file_upload.file.path)
         print(f"Загружена онтология из {file_upload.file.path}")
+        return True
+    return False

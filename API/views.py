@@ -1,12 +1,12 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from parsing.models import Projects, Vacancies
 from .serializers import ProjectsSerializer, VacanciesSerializer, VacancyTagSerializer, SkillTagSerializer
-from ontology.models import VacancyTag, VacancyTagVariation, SkillTag, SkillTagVariation
+from ontology.models import VacancyTag, SkillTag
 from parsing.models import Roles_in_vacancies, Skills_in_vacancies
-from django.http import JsonResponse
-from django.db.models import Count, Sum
+from django.db.models import Sum, Prefetch
 
 
 def create_model_viewset(model, serializer):
@@ -69,50 +69,37 @@ class SearchSkillTagView(APIView):
         return Response(serializer.data)
 
 
+@api_view(['GET'])
 def search_vacancies(request):
-    # Получаем список названий тегов вакансии и навыков
     vacancy_tag_names = request.GET.getlist('vacancy_tags')
     skill_tag_names = request.GET.getlist('skill_tags')
 
     try:
-        # Инициализируем QuerySet вакансий
-        vacancies = Vacancies.objects.all()
-        # Фильтрация вакансий по названиям тегов роли
-        if vacancy_tag_names:
-            vacancies = vacancies.filter(roles_in_vacancies__role_name__name__in=vacancy_tag_names).distinct()
-        # Фильтрация по названиям тегов навыков
-        if skill_tag_names:
-            vacancies = vacancies.filter(skills_in_vacancies__skill_name__name__in=skill_tag_names).distinct()
+        # Подготавливаем запросы для prefetch_related
+        role_prefetch = Prefetch('roles_in_vacancies', queryset=Roles_in_vacancies.objects.filter(role_name__name__in=vacancy_tag_names))
+        skill_prefetch = Prefetch('skills_in_vacancies', queryset=Skills_in_vacancies.objects.filter(skill_name__name__in=skill_tag_names))
 
-        # Расчет очков для каждой вакансии
+        # Используем distinct и prefetch_related для оптимизации
+        vacancies = Vacancies.objects.all().prefetch_related(role_prefetch, skill_prefetch).distinct()
+
         vacancies_scores = []
         for vacancy in vacancies:
             score = 0
-            # Добавляем очки за теги роли
-            for role_in_vacancy in vacancy.roles_in_vacancies.all():
-                if role_in_vacancy.role_name.name in vacancy_tag_names:
-                    score += 50 if role_in_vacancy.priority == 1 else 10 if role_in_vacancy.priority == 2 else 0
+            for role in vacancy.roles_in_vacancies.all():
+                score += 50 if role.priority == 1 else 10
 
-            # Добавляем очки за совпадения навыков с приоритетами
-            for skill in Skills_in_vacancies.objects.filter(vacancy_id=vacancy):
-                if skill.skill_name.name in skill_tag_names:
-                    score += {1: 10,
-                              2: 7,
-                              3: 5,
-                              4: 4,
-                              5: 2}.get(skill.priority, 0)
-            if (score==0) or (score>= 3):
+            for skill in vacancy.skills_in_vacancies.all():
+                score += {1: 10, 2: 7, 3: 5, 4: 4, 5: 2}.get(skill.priority, 0)
+
+            if (score==0) or (score > 2):
                 vacancies_scores.append((vacancy, score))
 
-        # Сортировка вакансий по очкам
         vacancies_scores.sort(key=lambda x: x[1], reverse=True)
         sorted_vacancies = [vac[0] for vac in vacancies_scores]
-
-        # Сериализация отсортированных вакансий
         serializer = VacanciesSerializer(sorted_vacancies, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StatsView(APIView):
     def get(self, request):

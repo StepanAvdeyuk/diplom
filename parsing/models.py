@@ -74,8 +74,8 @@ class Vacancies(models.Model):
         verbose_name_plural = 'Vacancies'
 
 class Skills_in_vacancies(models.Model):
-    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE, null=True)
-    skill_name = models.ForeignKey(to=SkillTag, on_delete=models.CASCADE, null=True)
+    vacancy_id = models.ForeignKey(to=Vacancies, on_delete=models.CASCADE, related_name="skills_in_vacancies")
+    skill_name = models.ForeignKey(to=SkillTag, on_delete=models.CASCADE)
     obligation = models.IntegerField(null=True)
     priority = models.IntegerField(null=True)
 

@@ -89,11 +89,19 @@ ALLOWED_HOSTS = ['*']
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': "vacsearchdb",
+    #     'USER': "postgres",
+    #     'PASSWORD': "fallendata103",
+    #     'HOST': "localhost",
+    #     'PORT': "5433",
+    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "vacsearchdb",
-        'USER': "postgres",
-        'PASSWORD': "fallendata103",
+        'NAME': "vacsearch",
+        'USER': "admin",
+        'PASSWORD': "dh9Lqpzf",
         'HOST': "localhost",
         'PORT': "5433",
     }
@@ -144,3 +152,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+INTERNAL_IPS = ['127.0.0.1', 'localhost']
