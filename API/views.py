@@ -96,7 +96,7 @@ def search_vacancies(request):
             for skill in vacancy.skills_in_vacancies.all():
                 score += {1: 10, 2: 7, 3: 5, 4: 4, 5: 2}.get(skill.priority, 0)
 
-            if (score==0) or (score > 2):
+            if score > 2:
                 vacancies_scores.append((vacancy, score))
 
         vacancies_scores.sort(key=lambda x: x[1], reverse=True)
