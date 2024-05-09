@@ -75,6 +75,11 @@ def search_vacancies(request):
     skill_tag_names = request.GET.getlist('skill_tags')
 
     try:
+        if not vacancy_tag_names and not skill_tag_names:
+            vacancies = Vacancies.objects.all()
+            serializer = VacanciesSerializer(vacancies, many=True)
+            return Response(serializer.data)
+
         # Подготавливаем запросы для prefetch_related
         role_prefetch = Prefetch('roles_in_vacancies', queryset=Roles_in_vacancies.objects.filter(role_name__name__in=vacancy_tag_names))
         skill_prefetch = Prefetch('skills_in_vacancies', queryset=Skills_in_vacancies.objects.filter(skill_name__name__in=skill_tag_names))
