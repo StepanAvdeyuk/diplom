@@ -24,7 +24,7 @@ function App() {
 		<Routes>
 			<Route path="/" element={<MainPage/>} />
 			<Route path="/search" element={<SearchPage/>}/>
-			<Route path="/catalog" element={<CatalogPage/>}/>
+			<Route path="/catalog/:currentCatalog" element={<CatalogPage/>}/>
 		</Routes>
 	</div>
 	);

@@ -1,5 +1,7 @@
 import React from 'react'
 import Slider from 'react-slick';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import arrow2 from '../assets/main-arrow-2.svg';
 
@@ -30,6 +32,9 @@ function SamplePrevArrow(props) {
 }
 
 export default function SimpleSlider() {
+
+    const catalogItems = useSelector(state => state.searchParams.catalogItems);
+
     var settings = {
       dots: false,
       arrows: true,
@@ -42,7 +47,14 @@ export default function SimpleSlider() {
     };
     return (
       <Slider {...settings}>
-        <div className='main__slider-item'>
+        {catalogItems && catalogItems.map(item => {
+          return <Link to={`/catalog/${item.tag}`}>
+              <div className='main__slider-item'>
+            <span>Вакансии для {item.name}</span>
+          </div>
+          </Link>
+        })}
+        {/* <div className='main__slider-item'>
           <span>Вакансии для frontend&#8209;разработчиков</span>
         </div>
         <div className='main__slider-item'> 
@@ -59,7 +71,7 @@ export default function SimpleSlider() {
         </div>
         <div className='main__slider-item'> 
             <span>Вакансии для 3d&#8209;разработчиков</span>
-        </div>
+        </div> */}
       </Slider>
     );
   }

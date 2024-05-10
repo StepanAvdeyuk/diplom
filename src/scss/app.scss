@@ -15,6 +15,7 @@ body {
 .container {
     width: 1160px;
     margin: 0 auto;
+    min-height: calc(100vh + 1px);
 }
 
 

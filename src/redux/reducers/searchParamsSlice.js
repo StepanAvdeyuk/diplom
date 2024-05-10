@@ -5,6 +5,13 @@ import config from '../../config';
 const initialState = {
   skills: [],
   professions: [],
+  catalogItems: [
+    { name: 'стажеров', tag: 'intern'},
+    { name: 'python разработчиков', tag: 'python_programmer'},
+    { name: 'frontend разработчиков', tag: 'frontend_developer'},
+    { name: 'backend разработчиков', tag: 'backend_developer'},
+    { name: 'С++ разработчиков', tag: 'c++_programmer'},
+  ]
 };
 
 export const fetchProfessions = createAsyncThunk(

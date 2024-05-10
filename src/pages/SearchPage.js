@@ -1,13 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import debounce from 'lodash.debounce';
+import axios from 'axios'
+
 import search from '../assets/search.png';
 import VacancyCard from '../components/VacancyCard';
 import ProfessionItem from '../components/ProfessionItem';
 import SkillItem from '../components/SkillItem';
 import Loader from '../components/Loader';
 import config from '../config';
+
 
 import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
 
@@ -34,6 +37,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [showFavorites, setShowFavorites] = React.useState(false);
+  const [favorites, setFavorites] = React.useState([]);
 
   const [offset, setOffset] = React.useState(10);
 
@@ -49,8 +53,8 @@ const SearchPage = () => {
 
   const getData = () => {
     setIsLoading(true);
-    const queryParamsProfessions = selectedProfessionsIds.map(item => `vacancy_tags=${item.sendName}`).join('&');
-    const queryParamsSkills = selectedSkillsIds.map(item => `skill_tags=${item.sendName}`).join('&');
+    const queryParamsProfessions = selectedProfessionsIds.map(item => `vacancy_tags=${encodeURIComponent(item.sendName)}`).join('&');
+    const queryParamsSkills = selectedSkillsIds.map(item => `skill_tags=${encodeURIComponent(item.sendName)}`).join('&');
     axios.get(`${config.API_URL}/api/search_vacancies/?${queryParamsSkills}&${queryParamsProfessions}`)
     .then((data) => {   
         setData(data.data);
@@ -61,6 +65,8 @@ const SearchPage = () => {
         setIsLoading(false);
     })
   }
+
+  const debouncedGetData = React.useCallback(debounce(getData, 400), [getData, 400]);
 
   const getAllData = () => {
     setIsLoading(true);
@@ -81,14 +87,19 @@ const SearchPage = () => {
 
 
   React.useEffect(() => {
-    getData();
+    debouncedGetData();
+    return () => debouncedGetData.cancel();
   }, [skills, professions])
 
   function getFavorites() {
-    return JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(JSON.parse(localStorage.getItem('favorites')));
   }
 
-  let favorites = getFavorites();
+  React.useEffect(() => {
+    getFavorites();
+  }, [showFavorites])
+
+  console.log(favorites)
 
   return (
     <>
@@ -166,7 +177,7 @@ const SearchPage = () => {
             {data && !isLoading && !showFavorites && data.slice(0, offset).map((item) =>  {
                 return <VacancyCard vacancyName={item.vacancy_name}
                                     vacancyCount={item.vacancy_count}
-                                    isFavorite={favorites.includes(item.vacancy_id) ? true : false}
+                                    isFavorite={favorites ? (favorites.includes(item.vacancy_id) ? true : false) : false}
                                     vacancyId={item.vacancy_id}
                                     projectId={item.project_id}
                                     projectName={item.project_name}
@@ -179,8 +190,8 @@ const SearchPage = () => {
                                     key={item.vacancy_id}
                 />
             })}
-            {allData && !isLoading && showFavorites && allData.slice(0, offset).map((item) =>  {
-              if (favorites.includes(item.vacancy_id)) {
+            {allData && !isLoading && showFavorites && allData.map((item) =>  {
+              if (favorites && favorites.includes(item.vacancy_id)) {
               return <VacancyCard vacancyName={item.vacancy_name}
                                   vacancyCount={item.vacancy_count}
                                   isFavorite={favorites.includes(item.vacancy_id) ? true : false}
