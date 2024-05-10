@@ -33,8 +33,9 @@ def get_skills_tags_dict():
 def normalize_text(text, complex_tags):
     text = text.lower()
     table = str.maketrans('', '', string.punctuation.translate(
-        str.maketrans('', '', '+-_#')))
+        str.maketrans('', '', '+-_#/')))
     text = text.translate(table).replace('-', ' ')
+    text = text.translate(table).replace('/', ' ')
 
     doc = Doc(text)
     doc.segment(segmenter)
@@ -43,7 +44,7 @@ def normalize_text(text, complex_tags):
     for token in doc.tokens:
         token.lemmatize(morph_vocab)
 
-    lemmatized_text = ''.join([token.lemma if token.lemma in '+-_#' else ' ' + token.lemma for token in doc.tokens]).strip()
+    lemmatized_text = ''.join([token.lemma if token.lemma in '1234567890+-_#' else ' ' + token.lemma for token in doc.tokens]).strip()
 
 
     # Обработка сложных тегов
