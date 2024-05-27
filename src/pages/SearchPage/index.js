@@ -1,0 +1,1 @@
+export {SearchPageAsync as SearchPage} from './SearchPage.async.js'

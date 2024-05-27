@@ -2,14 +2,14 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-import SimpleSlider from '../components/SimpleSlider';
-import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
+import SimpleSlider from '../../components/SimpleSlider';
+import { useDebouncedSearch } from '../../hooks/useDebouncedSearch';
 
-import arrow from '../assets/main-arrow.svg';
-import search from '../assets/search.png';
-import ProfessionItem from '../components/ProfessionItem';
-import SkillItem from '../components/SkillItem';
-import config from '../config';
+import arrow from '../../assets/main-arrow.svg';
+import search from '../../assets/search.png';
+import ProfessionItem from '../../components/ProfessionItem';
+import SkillItem from '../../components/SkillItem';
+import config from '../../config';
 
 const MainPage = () => {
 
@@ -111,9 +111,12 @@ const MainPage = () => {
     <h2 className="main__subtitle">
         Подборки вакансий
     </h2>
-        <div className="main__slider">
-            <SimpleSlider/>
-        </div>   
+    <div className="main__slider">
+        <SimpleSlider/>
+    </div>   
+    <div className="main__to-stats">
+      <Link to='/stats'>Статистика по вакансиям</Link>
+    </div>
     </>
   )
 }

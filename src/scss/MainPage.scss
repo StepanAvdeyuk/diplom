@@ -1,6 +1,18 @@
 .main {
+    &__to-stats {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        a {
+            font-size: 14px;
+            color: rgba(10, 108, 255, 0.55);
+            border: 1px solid rgba(10, 108, 255, 0.55);
+            border-radius: 8px;
+            padding: 4px 8px;
+        }
+    }
     &__title {
-        padding-top: 120px;
+        padding-top: 100px;
         font-size: 60px;
         font-style: normal;
         font-weight: 500;
@@ -66,6 +78,7 @@
             &.active {
                 transform: rotate(180deg);
             }
+            user-select: none;
         }
         &.active {
             border-radius: 10px 10px 0px 0px;
@@ -128,6 +141,7 @@
             &.active {
                 transform: rotate(180deg);
             }
+            user-select: none;
         }
         span {
             color: $main-text;

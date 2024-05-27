@@ -1,0 +1,1 @@
+export {CatalogPageAsync as CatalogPage} from './CatalogPage.async.js'

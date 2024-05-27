@@ -1,10 +1,14 @@
 import React from 'react'
 
+import {useIsMobile} from '../hooks/useIsMobile';
+
 import arrow from '../assets/vac-arrow.svg';
 import link from '../assets/link.png';
 import heart from '../assets/heart.svg'; 
 
 const VacancyCard = ({vacancyName, vacancyCount, isFavorite, vacancyId, projectId, projectName, projectType, projectHead, projectStage, projectUrl, vacancyDisciplines, vacancyAdditionally}) => {
+
+  const isMobile = useIsMobile();
 
   const [isModal, setIsModal] = React.useState(false);  
   const [isLiked, setIsLiked] = React.useState(isFavorite);  
@@ -64,9 +68,9 @@ const VacancyCard = ({vacancyName, vacancyCount, isFavorite, vacancyId, projectI
     <>
     <div className={isModal ? "vc__wrapper active" : "vc__wrapper"}>
         <span className='vc__count'>x{vacancyCount}</span>
-        <div className="vc__vacancy">{vacancyName.charAt(0).toUpperCase() + vacancyName.slice(1)}</div>
-        <div className="vc__project">№{projectId} {projectName}</div>
-        <div className="vc__stage">{projectStageStatus}</div>
+        <div className="vc__vacancy">{isMobile && 'Вакансия: '}{vacancyName.charAt(0).toUpperCase() + vacancyName.slice(1)}</div>
+        <div className="vc__project">{isMobile && 'Проект: '}№{projectId} {projectName}</div>
+        <div className="vc__stage">{isMobile && 'Стадия проекта: '}{projectStageStatus}</div>
         <div className="vc__links">
             <div className="vc__cab">
                 <p>Открыть вакансию

@@ -3,9 +3,9 @@ import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios'
 
-import VacancyCard from '../components/VacancyCard';       
-import Loader from '../components/Loader';
-import config from '../config';
+import VacancyCard from '../../components/VacancyCard';       
+import Loader from '../../components/Loader';
+import config from '../../config';
 
 
 // const currentCatalog = 'intern';
@@ -19,8 +19,6 @@ const CatalogPage = () => {
   const currentCatalogItem = useSelector(state => state.searchParams.catalogItems).filter(item => item.tag == currentCatalog);
   const catalogItems = useSelector(state => state.searchParams.catalogItems).filter(item => item.tag != currentCatalog);
   
-console.log(currentCatalogItem)
-
   const [data, setData] = React.useState([]);
   const [offset, setOffset] = React.useState(10);
   const [isLoading, setIsLoading] = React.useState(false);

@@ -49,8 +49,10 @@
                 font-size: 14px;
                 color: $main-color;
                 font-weight: 500;
-                display: block;
-                padding: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 4px;
                 height: 100%;
                 text-align: center;
                 border-right: 1px solid #0a6cff42;
@@ -68,6 +70,27 @@
         border-radius: 6px;
         display: block;
         margin: 0 auto;
+    }
+    &__open-params {
+        display: none;
+        margin-top: 30px;
+        padding: 16px;
+        border-radius: 10px;
+        align-items: center;
+        justify-content: space-between;
+        color: rgba(10, 108, 255, 0.8);
+        font-size: 16px;
+        border: 1px solid rgba(10, 108, 255, 0.6);
+        &:hover {
+            cursor: pointer;
+        }
+        img {
+            user-select: none;
+            transition: all 0.3s ease;
+            &.active {
+                transform: rotate(180deg);
+            }
+        }
     }
     &__param {
         &-wrapper {
@@ -122,6 +145,7 @@
                 top: 50%;
                 transform: translateY(-50%);
                 right: 8px;
+                user-select: none;
             }
             input {
                 width: 100%;

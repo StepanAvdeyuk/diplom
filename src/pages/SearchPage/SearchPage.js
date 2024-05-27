@@ -4,19 +4,25 @@ import { useSelector } from 'react-redux';
 import debounce from 'lodash.debounce';
 import axios from 'axios'
 
-import search from '../assets/search.png';
-import VacancyCard from '../components/VacancyCard';
-import ProfessionItem from '../components/ProfessionItem';
-import SkillItem from '../components/SkillItem';
-import Loader from '../components/Loader';
-import config from '../config';
+import search from '../../assets/search.png';
+import VacancyCard from '../../components/VacancyCard';
+import ProfessionItem from '../../components/ProfessionItem';
+import SkillItem from '../../components/SkillItem';
+import Loader from '../../components/Loader';
+import config from '../../config';
+
+import arrow from '../../assets/vac-arrow.svg';
 
 
-import { useDebouncedSearch } from '../hooks/useDebouncedSearch';
+import { useDebouncedSearch } from '../../hooks/useDebouncedSearch';
 
 const loaderData = [0, 0, 0, 0, 0];
 
 const SearchPage = () => {
+
+  const [isModal, setIsModal] = React.useState(() => {
+    return window.innerWidth < 993 ? false : true;
+  });
 
   const {
     input: searchP,
@@ -111,8 +117,12 @@ const SearchPage = () => {
       </Link>
       <h2>Поиск вакансий</h2>
     </div>
+    <div className="search__open-params" onClick={() => setIsModal(!isModal)}>
+        Параметры поиска
+        <img className={isModal ? "active" : ""} src={arrow} alt="arrow" />
+    </div>
     <div className="search__content">
-      <div className="search__params">
+      {isModal && <div className="search__params">
         <div className="search__param-wrapper">
           <div className="search__param-name">Направления
             <span>+{selectedProfessionsCount}</span> 
@@ -166,7 +176,7 @@ const SearchPage = () => {
             {((searchS !== '') && (filteredSkills.length == 0) && (!isLoadingS)) && <div className='search__param-none'>Ничего не найдено</div>}
           </div>
         </div>
-      </div>
+      </div>}
       <div className="search__result">
             <div className="search__result-header">
               <div className="title">Вакансия</div>

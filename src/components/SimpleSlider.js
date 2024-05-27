@@ -10,7 +10,7 @@ function SampleNextArrow(props) {
     return (
       <div
         className={className}
-        style={{ ...style, display: "block", transform: "rotate(180deg) translate(0, -50%)"}}
+        style={{ ...style, display: "block", transform: "rotate(180deg) translateY(50%)"}}
         onClick={onClick}
       >
         <img src={arrow2} alt="arrow2" />
@@ -23,7 +23,7 @@ function SamplePrevArrow(props) {
     return (
         <div
           className={className}
-          style={{ ...style, display: "block"}}
+          style={{ ...style, display: "block", transform: "translateY(-50%)"}}
           onClick={onClick}
         >
           <img src={arrow2} alt="arrow2" />
@@ -43,7 +43,23 @@ export default function SimpleSlider() {
       slidesToShow: 3,
       slidesToScroll: 1,
       nextArrow: <SampleNextArrow/>,
-      prevArrow: <SamplePrevArrow/>
+      prevArrow: <SamplePrevArrow/>,
+      responsive: [
+        {
+          breakpoint: 992,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 1,
+          }
+        },
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          }
+        },
+      ]
     };
     return (
       <Slider {...settings}>
@@ -54,24 +70,6 @@ export default function SimpleSlider() {
           </div>
           </Link>
         })}
-        {/* <div className='main__slider-item'>
-          <span>Вакансии для frontend&#8209;разработчиков</span>
-        </div>
-        <div className='main__slider-item'> 
-            <span>Вакансии для стажеров</span>
-        </div>
-        <div className='main__slider-item'>
-            <span>Вакансии для 3d&#8209;разработчиков</span>
-        </div>
-        <div className='main__slider-item'>
-          <span>Вакансии для frontend&#8209;разработчиков</span>
-        </div>
-        <div className='main__slider-item'>
-            <span>Вакансии для стажеров</span>
-        </div>
-        <div className='main__slider-item'> 
-            <span>Вакансии для 3d&#8209;разработчиков</span>
-        </div> */}
       </Slider>
     );
   }

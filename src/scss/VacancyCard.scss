@@ -115,6 +115,7 @@
         display: flex;
         img {
             width: 20px;
+            user-select: none;
         }
         p {
             text-align: right;
