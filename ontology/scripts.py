@@ -5,6 +5,7 @@ from .models import ComplexVacancyTag, VacancyTag, ComplexSkillTag, SkillTag
 from parsing.models import Vacancies, Roles_in_vacancies, Skills_in_vacancies
 from ontology.models import FileUpload
 from owlready2 import get_ontology, onto_path
+from ontology.utils import OntologyManager
 
 # Инициализация компонентов Natasha
 segmenter = Segmenter()
@@ -33,9 +34,8 @@ def get_skills_tags_dict():
 def normalize_text(text, complex_tags):
     text = text.lower()
     table = str.maketrans('', '', string.punctuation.translate(
-        str.maketrans('', '', '+-_#/')))
-    text = text.translate(table).replace('-', ' ')
-    text = text.translate(table).replace('/', ' ')
+        str.maketrans('', '', '+-_#/.')))
+    text = text.translate(table).replace('-', ' ').replace('/', ' ').replace('.',' ')
 
     doc = Doc(text)
     doc.segment(segmenter)
@@ -44,7 +44,7 @@ def normalize_text(text, complex_tags):
     for token in doc.tokens:
         token.lemmatize(morph_vocab)
 
-    lemmatized_text = ''.join([token.lemma if token.lemma in '1234567890+-_#' else ' ' + token.lemma for token in doc.tokens]).strip()
+    lemmatized_text = ''.join([token.lemma if token.lemma in '+-_#' else ' ' + token.lemma for token in doc.tokens]).strip()
 
 
     # Обработка сложных тегов
@@ -86,7 +86,7 @@ def tag_vacancies():
         matched_tags = match_tags(normalized_name, vacancy_tags_dict)
 
         if not matched_tags:
-            matched_tags.append('разное')
+            matched_tags.append('other')
         else:
             tagged_vacancies_count += 1
 
@@ -119,16 +119,11 @@ def tag_vacancies():
     print(f"Покрытие навыков: {skill_tag_coverage:.2f}%")
 
 def check_vacancy_tags():
-    # Автоматическая загрузка последней загруженной онтологии, если она ещё не загружена
     onto_manager = OntologyManager.get_instance()
     if onto_manager.get_ontology() is None:
         last_loaded_file = FileUpload.objects.filter(tag_type='ontology', last_loaded=True).first()
         if last_loaded_file:
-            print(f"Автоматически загружаем последнюю онтологию из {last_loaded_file.file.path}")
             onto_manager.load_ontology(last_loaded_file.file.path)
-        else:
-            raise ValueError("Онтология не загружена и не была найдена ни одна ранее загруженная онтология.")
-
     ontology_skills_data = {}
     original_skills_data = {}
 
@@ -141,7 +136,6 @@ def check_vacancy_tags():
         role_name = riv.role_name.name
         vacancy_id = riv.vacancy_id_id
         role_instance = next((inst for inst in onto_manager.get_ontology().role.instances() if inst.name == role_name), None)
-
         if role_instance:
             ontology_skills_data.setdefault(vacancy_id, set()).update(get_skills_from_ontology(role_instance))
         else:
@@ -157,30 +151,33 @@ def check_vacancy_tags():
 
 def infer_roles_from_skills(vacancy_id, skills_dict, onto):
     possible_roles = {}
-    skills_set = set(skills_dict.keys())  # Получаем названия навыков как множество для пересечения
-    # Исследование всех ролей в онтологии
-    for role_class in [onto.role]:
+    skills_set = set(skills_dict.keys())
+
+    # Включаем дополнительные классы в поиск
+    ontology_classes = [onto.role, onto.field, onto.baserole]
+
+    for role_class in ontology_classes:
         for instance in role_class.instances():
             role_skills = {skill.name.lower() for skill in instance.includes}
             if skills_set.intersection(role_skills):
                 possible_roles[instance] = role_skills
 
-    # Определение наилучшего соответствия
     best_match = determine_best_match(possible_roles, skills_set)
     if best_match:
         print(f"Наилучшее соответствие для вакансии {vacancy_id} найдено: {best_match}.")
-        update_role_in_vacancy(vacancy_id, best_match, role_priority=2)  # Обновление с учетом словаря навыков
+        update_role_in_vacancy(vacancy_id, best_match, role_priority=2)
         return best_match
     else:
         print(f"Ни одно соответствие для вакансии {vacancy_id} не найдено.")
         return None
 
+
 def update_role_in_vacancy(vacancy_id, role_instance, role_priority=2):
-    vacancy_tag, _ = VacancyTag.objects.get_or_create(name=role_instance.name)  # используем имя инстанса
+    vacancy_tag, _ = VacancyTag.objects.get_or_create(name=role_instance.name)
     role_in_vacancy, created = Roles_in_vacancies.objects.update_or_create(
         vacancy_id_id=vacancy_id,
         role_name=vacancy_tag,
-        defaults={'priority': role_priority}  # убедитесь, что priority это число
+        defaults={'priority': role_priority}
     )
     if created:
         print(f"Создана новая роль для вакансии {vacancy_id} с приоритетом {role_priority}.")
@@ -188,7 +185,6 @@ def update_role_in_vacancy(vacancy_id, role_instance, role_priority=2):
         print(f"Роль для вакансии {vacancy_id} обновлена с приоритетом {role_priority}.")
 
 def determine_best_match(possible_roles, skills):
-    # Определение наилучшего соответствия роли навыкам
     best_match = None
     max_intersection = 0
     for role, role_skills in possible_roles.items():
@@ -199,7 +195,6 @@ def determine_best_match(possible_roles, skills):
     return best_match
 
 def get_skills_from_ontology(role_instance):
-    # Возвращает навыки из онтологии для данной роли
     return {skill.name.lower() for skill in role_instance.includes}
 
 def update_vacancy_skills(all_skills_data, original_skills_data, ontology_skills_data):
@@ -211,7 +206,7 @@ def update_vacancy_skills(all_skills_data, original_skills_data, ontology_skills
                 if skill_name in original_skills:
                     obligation = original_skills[skill_name]
                 else:
-                    obligation = 2  # Значение по умолчанию, если навык отсутствует в исходных данных
+                    obligation = 2
                 priority = determine_priority(skill_name, original_skills, ontology_skills)
                 skill_tag, _ = SkillTag.objects.get_or_create(name=skill_name)
                 Skills_in_vacancies.objects.update_or_create(
@@ -236,27 +231,3 @@ def determine_priority(skill_name, skill_details, ontology_skills):
 
     elif skill_in_ontology and not skill_in_original:
         return 5
-
-class OntologyManager:
-    _instance = None
-
-    @classmethod
-    def get_instance(cls):
-        if cls._instance is None:
-            cls._instance = cls()
-        return cls._instance
-
-    def __init__(self):
-        self.onto = None
-
-    def load_ontology(self, file_path):
-        # Clean up existing ontology
-        if self.onto:
-            self.onto.destroy()
-
-        onto_path.append(os.path.dirname(file_path))
-        self.onto = get_ontology(f"file://{file_path}")
-        self.onto.load()
-
-    def get_ontology(self):
-        return self.onto

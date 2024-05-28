@@ -11,7 +11,6 @@ def start():
     scheduler = BackgroundScheduler()
     scheduler.add_jobstore(DjangoJobStore(), "default")
 
-    # Устанавливаем задачу
     scheduler.add_job(
         update_vacancies,
         trigger=IntervalTrigger(hours=10),
