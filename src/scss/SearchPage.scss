@@ -71,6 +71,14 @@
         display: block;
         margin: 0 auto;
     }
+    &__no-result {
+        display: flex;
+        height: 100%;
+        font-size: 14px;
+        color: rgba(7, 37, 81, 0.70);
+        align-items: center;
+        justify-content: center; 
+    }
     &__open-params {
         display: none;
         margin-top: 30px;

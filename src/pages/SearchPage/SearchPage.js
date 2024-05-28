@@ -220,6 +220,7 @@ const SearchPage = () => {
             {isLoading && loaderData.map((item, i) => {
               return <Loader key={i}/>
             })}
+            {!isLoading && data.length === 0 && <div className='search__no-result'>Поиск по вашему запросу не дал результатов</div>}
             {!isLoading && !showFavorites && offset < data.length && <div className="search__more">
               <button onClick={() => {setOffset(offset + 10)}}>Показать еще</button>
             </div>}
