@@ -4,7 +4,6 @@ from django.db import transaction
 from .models import ComplexVacancyTag, VacancyTag, ComplexSkillTag, SkillTag
 from parsing.models import Vacancies, Roles_in_vacancies, Skills_in_vacancies
 from ontology.models import FileUpload
-from owlready2 import get_ontology, onto_path
 from ontology.utils import OntologyManager
 
 # Инициализация компонентов Natasha
@@ -153,7 +152,6 @@ def infer_roles_from_skills(vacancy_id, skills_dict, onto):
     possible_roles = {}
     skills_set = set(skills_dict.keys())
 
-    # Включаем дополнительные классы в поиск
     ontology_classes = [onto.role, onto.field, onto.baserole]
 
     for role_class in ontology_classes:

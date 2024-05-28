@@ -26,8 +26,6 @@ SECRET_KEY = 'django-insecure-xp$5^l@6y(5h1h(69o2x4j_l-9q7(6f&o+uh2i*2=+4*ro&(+%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -82,28 +80,28 @@ TEMPLATES = [
 WSGI_APPLICATION = 'VacSearch.wsgi.application'
 
 
-ALLOWED_HOSTS = ['api.miem-vacancy.ru miem-vacancy.ru']
+ALLOWED_HOSTS = ['api.miem-vacancy.ru', 'www.api.miem-vacancy.ru']
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': "vacsearchdb",
-        'USER': "postgres",
-        'PASSWORD': "fallendata103",
-        'HOST': "localhost",
-        'PORT': "5433",
-    }
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': "vacsearch",
-    #     'USER': "admin",
-    #     'PASSWORD': "dh9Lqpzf",
+    #     'NAME': "vacsearchdb",
+    #     'USER': "postgres",
+    #     'PASSWORD': "fallendata103",
     #     'HOST': "localhost",
-    #     'PORT': "5432",
+    #     'PORT': "5433",
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': "vacsearch",
+        'USER': "maksim",
+        'PASSWORD': "maksim",
+        'HOST': "localhost",
+        'PORT': "5432",
+    }
 }
 
 
