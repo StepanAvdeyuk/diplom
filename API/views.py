@@ -4,9 +4,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from parsing.models import Projects, Vacancies
 from .serializers import ProjectsSerializer, VacanciesSerializer, VacancyTagSerializer, SkillTagSerializer
-from ontology.models import VacancyTag, SkillTag
+from ontology.models import VacancyTag, SkillTag, FileUpload
 from parsing.models import Roles_in_vacancies, Skills_in_vacancies
 from django.db.models import Sum, Prefetch
+from ontology.utils import OntologyManager
 
 
 def create_model_viewset(model, serializer):
@@ -30,24 +31,48 @@ class CurrentRolesView(APIView):
 class SearchVacancyTagView(APIView):
     def get(self, request):
         query = request.query_params.get('q', '').strip()
+        role_tag = self.get_role_tags_from_ontology()
+
         if query:
             starts_with_tags = VacancyTag.objects.filter(
+                name__in=role_tag,
                 variations__variation__istartswith=query
             ).distinct()
             contains_tags = VacancyTag.objects.filter(
+                name__in=role_tag,
                 variations__variation__icontains=query
             ).distinct().exclude(id__in=starts_with_tags.values_list('id', flat=True))
 
             tags = list(starts_with_tags) + list(contains_tags)
             tags = sorted(tags, key=lambda tag: len(tag.annotation))
         else:
-            tags = VacancyTag.objects.all()
+            tags = VacancyTag.objects.filter(name__in=role_tag)
 
-        # Sort the tags by the length of their names
         tags = sorted(tags, key=lambda tag: len(tag.name))
 
         serializer = VacancyTagSerializer(tags, many=True)
         return Response(serializer.data)
+
+    def get_role_tags_from_ontology(self):
+        manager = OntologyManager.get_instance()
+        ontology = manager.get_ontology()
+        if ontology is None:
+            last_loaded_file = FileUpload.objects.filter(tag_type='ontology', last_loaded=True).first()
+            if last_loaded_file:
+                manager.load_ontology(last_loaded_file.file.path)
+
+        try:
+            ontology_classes = [ontology.role, ontology.baserole]
+            role_tags = set()
+
+            for role_class in ontology_classes:
+                for instance in role_class.instances():
+                    role_tags.add(instance.name)
+
+            return role_tags
+        except AttributeError as e:
+            print(f"Ошибка при доступе к атрибутам онтологии: {e}")
+            return set()
 
 class SearchSkillTagView(APIView):
     def get(self, request):
@@ -108,18 +133,16 @@ def search_vacancies(request):
 
 class StatsView(APIView):
     def get(self, request):
-        # Агрегируем количество вакансий по каждому тегу, учитывая vacancy_count
         roles_with_counts = Roles_in_vacancies.objects.values('role_name__annotation', 'role_name__name').annotate(
             count=Sum('vacancy_id__vacancy_count')).order_by('-count')
         skills_with_counts = Skills_in_vacancies.objects.filter(priority__lt=5).values(
             'skill_name__annotation', 'skill_name__name').annotate(
             count=Sum('vacancy_id__vacancy_count')).order_by('-count')
-        # Подсчитываем общее количество вакансий
         total_vacancies = Vacancies.objects.aggregate(total=Sum('vacancy_count'))['total']
-        # Формируем ответ
         response_data = {
             'total_vacancies': total_vacancies,
             'role_tags': list(roles_with_counts),
             'skill_tags': list(skills_with_counts)
         }
         return Response(response_data)
+
