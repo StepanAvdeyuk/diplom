@@ -80,7 +80,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'VacSearch.wsgi.application'
 
 
-ALLOWED_HOSTS = ['api.miem-vacancy.ru', 'www.api.miem-vacancy.ru']
+ALLOWED_HOSTS = ['api.miem-vacancy.ru', 'miem-vacancy.ru']
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -97,7 +97,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': "vacsearch",
-        'USER': "maksim",
+        'USER': "postgres",
         'PASSWORD': "maksim",
         'HOST': "localhost",
         'PORT': "5432",
